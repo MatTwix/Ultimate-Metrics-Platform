@@ -11,7 +11,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/configs"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/internal/config"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/pkg/logger"
 	"github.com/fsnotify/fsnotify"
 )
@@ -19,7 +19,7 @@ import (
 func main() {
 	var cfgMutex sync.RWMutex
 
-	cfg, err := configs.LoadConfig("./config.yaml")
+	cfg, err := config.LoadConfig("./config.yaml")
 	if err != nil {
 		slog.Error("failed to load initial configuration, shutting down", "error", err)
 		os.Exit(1)
@@ -30,11 +30,11 @@ func main() {
 	log.Info("starting collector-service", slog.String("env", cfg.Env))
 	log.Debug("debug messages are enabled")
 
-	go configs.WatchConfig(func(e fsnotify.Event) {
+	go config.WatchConfig(func(e fsnotify.Event) {
 		log.Info("config gile changed, reloading...", "file", e.Name)
 
 		cfgMutex.Lock()
-		reloadedCfg, err := configs.LoadConfig("./config.yaml")
+		reloadedCfg, err := config.LoadConfig("./config.yaml")
 		if err != nil {
 			log.Error("error updating config", "error", err)
 			return
