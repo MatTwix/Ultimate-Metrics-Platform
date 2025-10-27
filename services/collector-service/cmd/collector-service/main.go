@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/internal/config"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/internal/database"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/pkg/logger"
 	"github.com/fsnotify/fsnotify"
 )
@@ -46,6 +47,24 @@ func main() {
 		log = logger.New(reloadedCfg.Env)
 		log.Info("config reloaded successfully")
 	})
+
+	cfgMutex.RLock()
+	dbConfig := cfg.Postgres
+	cfgMutex.RUnlock()
+
+	db, err := database.New(dbConfig)
+	if err != nil {
+		log.Error("failed to connect to database", "error", err)
+		os.Exit(1)
+	}
+	defer db.Close()
+	log.Info("database connected successfully")
+
+	if err := db.RunMigrations(); err != nil {
+		log.Error("failed to run database migrations", "error", err)
+		os.Exit(1)
+	}
+	log.Info("database migrations applied successfully")
 
 	mux := http.NewServeMux()
 
