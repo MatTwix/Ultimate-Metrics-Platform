@@ -1,17 +1,17 @@
 env: "dev"
 
 server:
-  port: "3000"
+  port: "8080"
   timeout: 4s
   idle_timeout: 30s
 
 postgres:
   host: "localhost"
   port: "5432"
-  user: "user"
-  password: "password"
-  dbname: "metrics_db"
-  sslmode: "disable"
+  user: ""
+  password: ""
+  dbname: ""
+  sslmode: ""
   pool:
     max_open_conns: 25
     max_idle_conns: 10
@@ -27,9 +27,9 @@ worker:
   poll_interval: 1m
 
 github:
-  token: "here_will_be_token"
+  token: ""
   repository: "golang/go"
 
 open_weather:
-  api_key: "here_will_be_api_key"
-  city: "London"
+  api_key: ""
+  city: ""

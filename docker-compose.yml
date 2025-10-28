@@ -1,0 +1,77 @@
+services:
+  collector-service:
+    build:
+      context: .
+      dockerfile: ./services/collector-service/Dockerfile
+    container_name: collector-service
+    ports: 
+      - "8080:8080"
+    restart: on-failure
+    environment: 
+      - POSTGRES_HOST=postgres
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DBNAME=${POSTGRES_DBNAME}
+      - POSTGRES_SSLMODE=disable
+      - REDIS_PASSWORD=${POSTGRES_PASSWORD}
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - OPEN_WEATHER_API_KEY=${OPEN_WEATHER_API_KEY}
+      - OPEN_WEATHER_CITY=${OPEN_WEATHER_CITY}
+    depends_on:
+      - postgres
+    networks:
+      - app-network
+  postgres:
+    image: postgres:14-alpine
+    container_name: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DBNAME}
+    ports: 
+      - "5432:5432"
+    restart: always
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - app-network
+  prometheus:
+    image: prom/prometheus:v2.47.0
+    container_name: prometheus
+    ports: 
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    restart: on-failure
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    depends_on:
+      - collector-service
+    networks:
+      - app-network
+  grafana:
+    image: grafana/grafana:10.1.5
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    restart: on-failure
+    volumes:
+      - ./monitoring/grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - prometheus
+      - postgres
+    networks:
+      - app-network
+
+volumes:
+  postgres-data:
+  prometheus-data:
+  grafana-data:
+
+networks:
+  app-network:
+    driver: bridge

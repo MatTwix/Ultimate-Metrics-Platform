@@ -24,7 +24,7 @@ import (
 func main() {
 	var cfgMutex sync.RWMutex
 
-	cfg, err := config.LoadConfig("./config.yaml")
+	cfg, err := config.LoadConfig("./configs/config.yaml")
 	if err != nil {
 		slog.Error("failed to load initial configuration, shutting down", "error", err)
 		os.Exit(1)
