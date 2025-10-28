@@ -15,6 +15,7 @@ import (
 	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/internal/database"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/internal/repository"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/internal/server"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/internal/worker"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/pkg/logger"
 	"github.com/fsnotify/fsnotify"
 )
@@ -82,16 +83,25 @@ func main() {
 		}
 	}()
 
+	wrk := worker.New(metricsRepo, log, cfg.Worker.PollInterval)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	go wrk.Start(ctx)
+
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 
+	cancel()
+
 	log.Info("server is shutting down...")
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
+	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer shutdownCancel()
 
-	if err := srv.Shutdown(ctx); err != nil {
+	if err := srv.Shutdown(shutdownCtx); err != nil {
 		log.Error("server shutdown failed", "error", err)
 	}
 

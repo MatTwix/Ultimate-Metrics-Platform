@@ -13,6 +13,7 @@ type Config struct {
 	Server   ServerConfig   `mapstructure:"server"`
 	Postgres PostgresConfig `mapstructure:"postgres"`
 	Redis    RedisConfig    `mapstructure:"redis"`
+	Worker   WorkerConfig   `mapstructure:"worker"`
 }
 
 type ServerConfig struct {
@@ -42,6 +43,10 @@ type RedisConfig struct {
 	Addr     string `mapstructure:"addr"`
 	Password string `mapstructure:"password"`
 	DB       int    `mapstructure:"db"`
+}
+
+type WorkerConfig struct {
+	PollInterval time.Duration `mapstructure:"poll_interval"`
 }
 
 func LoadConfig(path string) (*Config, error) {
