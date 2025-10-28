@@ -4,11 +4,14 @@ import (
 	"context"
 	"database/sql"
 	"embed"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"time"
 
 	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/internal/config"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/internal/repository"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/pkg/models"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	"github.com/golang-migrate/migrate/v4/source/iofs"
@@ -20,6 +23,8 @@ var migrationsFS embed.FS
 type Storage struct {
 	db *sql.DB
 }
+
+var _ repository.MetricRepository = (*Storage)(nil)
 
 func New(cfg config.PostgresConfig) (*Storage, error) {
 	dsn := fmt.Sprintf(
@@ -72,4 +77,59 @@ func (s *Storage) RunMigrations() error {
 
 func (s *Storage) Close() error {
 	return s.db.Close()
+}
+
+func (s *Storage) StoreBranch(ctx context.Context, metrics []models.Metric) error {
+	tx, err := s.db.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("could not begin transaction: %w", err)
+	}
+	defer tx.Rollback()
+
+	statement, err := tx.PrepareContext(ctx, `
+		INSERT INTO metrics (source, name, value, labels, collected_at)
+		VALUES ($1, $2, $3, $4, $5)
+	`)
+	if err != nil {
+		return fmt.Errorf("could not prepare transaction: %w", err)
+	}
+	defer statement.Close()
+
+	var batchErr repository.BatchInsertError
+
+	for _, metric := range metrics {
+		labelsJSON, err := json.Marshal(metric.Labels)
+		if err != nil {
+			batchErr.FailedCount++
+			batchErr.Errors = append(batchErr.Errors, fmt.Errorf("metric %s/%s: failed to marshal labels: %w",
+				metric.Source,
+				metric.Name,
+				err,
+			))
+			continue
+		}
+
+		_, err = statement.Exec(ctx, metric.Source, metric.Name, metric.Value, labelsJSON, metric.CollectedAt)
+		if err != nil {
+			batchErr.FailedCount++
+			batchErr.Errors = append(batchErr.Errors, fmt.Errorf("metric %s/%s: db insert failed: %w",
+				metric.Source,
+				metric.Name,
+				err,
+			))
+			continue
+		}
+
+		batchErr.SuccessfullCount++
+	}
+
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("failed to commit transaction: %w", err)
+	}
+
+	if len(batchErr.Errors) > 0 {
+		return &batchErr
+	}
+
+	return nil
 }
