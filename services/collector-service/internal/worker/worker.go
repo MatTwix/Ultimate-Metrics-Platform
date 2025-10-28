@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/internal/client"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/internal/repository"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/pkg/logger"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/pkg/models"
@@ -13,13 +14,23 @@ type Worker struct {
 	repo         repository.MetricRepository
 	log          logger.Logger
 	pollInterval time.Duration
+	githubClient *client.GithubClient
+	githubRepo   string
 }
 
-func New(repo repository.MetricRepository, log logger.Logger, pollInterval time.Duration) *Worker {
+func New(
+	repo repository.MetricRepository,
+	log logger.Logger,
+	pollInterval time.Duration,
+	githubClient *client.GithubClient,
+	githubRepo string,
+) *Worker {
 	return &Worker{
 		repo:         repo,
 		log:          log,
 		pollInterval: pollInterval,
+		githubClient: githubClient,
+		githubRepo:   githubRepo,
 	}
 }
 
@@ -28,15 +39,22 @@ func (w *Worker) Start(ctx context.Context) {
 	ticker := time.NewTicker(w.pollInterval)
 	defer ticker.Stop()
 
+	w.collectAllMetrics(ctx)
+
 	for {
 		select {
 		case <-ticker.C:
-			w.collectUptimeMetrics(ctx)
+			w.collectAllMetrics(ctx)
 		case <-ctx.Done():
 			w.log.Info("worker stopped")
 			return
 		}
 	}
+}
+
+func (w *Worker) collectAllMetrics(ctx context.Context) {
+	w.collectUptimeMetrics(ctx)
+	w.collectGithubMetrics(ctx)
 }
 
 func (w *Worker) collectUptimeMetrics(ctx context.Context) {
@@ -57,4 +75,28 @@ func (w *Worker) collectUptimeMetrics(ctx context.Context) {
 	}
 
 	w.log.Info("successfully collected and stored uptime metric")
+}
+
+func (w *Worker) collectGithubMetrics(ctx context.Context) {
+	w.log.Info("collecting github metrics...", "repo", w.githubRepo)
+
+	info, err := w.githubClient.GetRepoInfo(ctx, w.githubRepo)
+	if err != nil {
+		w.log.Error("failed to get github repo info", "error", err)
+		return
+	}
+
+	metric := models.Metric{
+		Source:      "GitHub",
+		Name:        "stargazers_count",
+		Value:       float64(info.StrangazersCount),
+		Labels:      map[string]any{"repository": w.githubRepo},
+		CollectedAt: time.Now(),
+	}
+
+	if err := w.repo.StoreBranch(ctx, []models.Metric{metric}); err != nil {
+		w.log.Error("failed to store github metric", "error", err)
+	} else {
+		w.log.Info("successfully collected github metric", "stars", info.StrangazersCount)
+	}
 }

@@ -14,6 +14,7 @@ type Config struct {
 	Postgres PostgresConfig `mapstructure:"postgres"`
 	Redis    RedisConfig    `mapstructure:"redis"`
 	Worker   WorkerConfig   `mapstructure:"worker"`
+	Github   GithubConfig   `mapstructure:"github"`
 }
 
 type ServerConfig struct {
@@ -47,6 +48,11 @@ type RedisConfig struct {
 
 type WorkerConfig struct {
 	PollInterval time.Duration `mapstructure:"poll_interval"`
+}
+
+type GithubConfig struct {
+	Token      string `mapstructure:"worker"`
+	Repository string `mapstructure:"repository"`
 }
 
 func LoadConfig(path string) (*Config, error) {

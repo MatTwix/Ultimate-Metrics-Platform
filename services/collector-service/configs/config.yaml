@@ -25,3 +25,7 @@ redis:
 
 worker:
   poll_interval: 1m
+
+github:
+  token: "here_will_be_token"
+  repository: "golang/go"

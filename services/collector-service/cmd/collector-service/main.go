@@ -11,6 +11,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/internal/client"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/internal/config"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/internal/database"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/internal/repository"
@@ -83,7 +84,19 @@ func main() {
 		}
 	}()
 
-	wrk := worker.New(metricsRepo, log, cfg.Worker.PollInterval)
+	cfgMutex.RLock()
+	githubConfig := cfg.Github
+	cfgMutex.RUnlock()
+
+	githubClient := client.NewGithubClient(githubConfig.Token)
+
+	wrk := worker.New(
+		metricsRepo,
+		log,
+		cfg.Worker.PollInterval,
+		githubClient,
+		githubConfig.Repository,
+	)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
