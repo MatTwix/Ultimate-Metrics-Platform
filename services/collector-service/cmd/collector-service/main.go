@@ -13,6 +13,8 @@ import (
 
 	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/internal/config"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/internal/database"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/internal/repository"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/internal/server"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/pkg/logger"
 	"github.com/fsnotify/fsnotify"
 )
@@ -65,27 +67,19 @@ func main() {
 		os.Exit(1)
 	}
 	log.Info("database migrations applied successfully")
-
-	mux := http.NewServeMux()
+	var metricsRepo repository.MetricRepository = db
 
 	cfgMutex.RLock()
 	serverConfig := cfg.Server
 	cfgMutex.RUnlock()
 
-	server := &http.Server{
-		Addr:         ":" + serverConfig.Port,
-		Handler:      mux,
-		ReadTimeout:  serverConfig.Timeout,
-		WriteTimeout: serverConfig.Timeout,
-		IdleTimeout:  serverConfig.IdleTimeout,
-	}
+	srv := server.New(serverConfig, log, metricsRepo)
 
 	go func() {
-		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			log.Error("server failed to start", "addr", server.Addr, "error", err)
+		if err := srv.Start(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			log.Error("server failed to start", "error", err)
 			os.Exit(1)
 		}
-		log.Info("server is ready to handle requests", "addr", server.Addr)
 	}()
 
 	quit := make(chan os.Signal, 1)
@@ -97,7 +91,7 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	if err := server.Shutdown(ctx); err != nil {
+	if err := srv.Shutdown(ctx); err != nil {
 		log.Error("server shutdown failed", "error", err)
 	}
 
