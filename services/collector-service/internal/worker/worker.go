@@ -14,23 +14,35 @@ type Worker struct {
 	repo         repository.MetricRepository
 	log          logger.Logger
 	pollInterval time.Duration
+
 	githubClient *client.GithubClient
 	githubRepo   string
+
+	weatherClient *client.OpenWeatherClient
+	weatherCity   string
 }
 
 func New(
 	repo repository.MetricRepository,
 	log logger.Logger,
 	pollInterval time.Duration,
+
 	githubClient *client.GithubClient,
 	githubRepo string,
+
+	weatherClient *client.OpenWeatherClient,
+	weatherCity string,
 ) *Worker {
 	return &Worker{
 		repo:         repo,
 		log:          log,
 		pollInterval: pollInterval,
+
 		githubClient: githubClient,
 		githubRepo:   githubRepo,
+
+		weatherClient: weatherClient,
+		weatherCity:   weatherCity,
 	}
 }
 
@@ -55,12 +67,13 @@ func (w *Worker) Start(ctx context.Context) {
 func (w *Worker) collectAllMetrics(ctx context.Context) {
 	w.collectUptimeMetrics(ctx)
 	w.collectGithubMetrics(ctx)
+	w.collectOpenWeatherMetrics(ctx)
 }
 
 func (w *Worker) collectUptimeMetrics(ctx context.Context) {
 	w.log.Info("collecting uptime metrics...")
 
-	// placeholder
+	//TODO: replace placeholder with real data
 	mockMetric := models.Metric{
 		Source:      "Source",
 		Name:        "availability_percent",
@@ -98,5 +111,29 @@ func (w *Worker) collectGithubMetrics(ctx context.Context) {
 		w.log.Error("failed to store github metric", "error", err)
 	} else {
 		w.log.Info("successfully collected github metric", "stars", info.StrangazersCount)
+	}
+}
+
+func (w *Worker) collectOpenWeatherMetrics(ctx context.Context) {
+	w.log.Info("collecting open weather metrics...", "city", w.weatherCity)
+
+	data, err := w.weatherClient.GetCurrentTemperature(ctx, w.weatherCity)
+	if err != nil {
+		w.log.Error("failed to get weather data", "error", err)
+		return
+	}
+
+	metric := models.Metric{
+		Source:      "OpenWeatherMap",
+		Name:        "temperature_celsius",
+		Value:       data.Main.Temp,
+		Labels:      map[string]any{"city": w.weatherCity},
+		CollectedAt: time.Now(),
+	}
+
+	if err := w.repo.StoreBranch(ctx, []models.Metric{metric}); err != nil {
+		w.log.Error("failed to store weather metric", "error", err)
+	} else {
+		w.log.Info("successfully collected weather metric", "temperature", data.Main.Temp)
 	}
 }

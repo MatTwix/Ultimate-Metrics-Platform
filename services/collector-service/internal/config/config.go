@@ -9,12 +9,13 @@ import (
 )
 
 type Config struct {
-	Env      string         `mapstructure:"env"`
-	Server   ServerConfig   `mapstructure:"server"`
-	Postgres PostgresConfig `mapstructure:"postgres"`
-	Redis    RedisConfig    `mapstructure:"redis"`
-	Worker   WorkerConfig   `mapstructure:"worker"`
-	Github   GithubConfig   `mapstructure:"github"`
+	Env         string            `mapstructure:"env"`
+	Server      ServerConfig      `mapstructure:"server"`
+	Postgres    PostgresConfig    `mapstructure:"postgres"`
+	Redis       RedisConfig       `mapstructure:"redis"`
+	Worker      WorkerConfig      `mapstructure:"worker"`
+	Github      GithubConfig      `mapstructure:"github"`
+	OpenWeather OpenWeatherConfig `mapstructure:"open_weather"`
 }
 
 type ServerConfig struct {
@@ -53,6 +54,11 @@ type WorkerConfig struct {
 type GithubConfig struct {
 	Token      string `mapstructure:"worker"`
 	Repository string `mapstructure:"repository"`
+}
+
+type OpenWeatherConfig struct {
+	APIKey string `mapstructure:"api_key"`
+	City   string `mapstructure:"city"`
 }
 
 func LoadConfig(path string) (*Config, error) {

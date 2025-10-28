@@ -29,3 +29,7 @@ worker:
 github:
   token: "here_will_be_token"
   repository: "golang/go"
+
+open_weather:
+  api_key: "here_will_be_api_key"
+  city: "London"

@@ -86,16 +86,22 @@ func main() {
 
 	cfgMutex.RLock()
 	githubConfig := cfg.Github
+	weatherConfig := cfg.OpenWeather
 	cfgMutex.RUnlock()
 
 	githubClient := client.NewGithubClient(githubConfig.Token)
+	weatherClient := client.NewOpenWeatherClient(weatherConfig.APIKey)
 
 	wrk := worker.New(
 		metricsRepo,
 		log,
 		cfg.Worker.PollInterval,
+
 		githubClient,
 		githubConfig.Repository,
+
+		weatherClient,
+		weatherConfig.City,
 	)
 
 	ctx, cancel := context.WithCancel(context.Background())
