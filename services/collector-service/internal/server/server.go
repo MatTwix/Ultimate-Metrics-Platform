@@ -5,8 +5,12 @@ import (
 	"net/http"
 
 	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/internal/config"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/internal/metrics"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/internal/repository"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/pkg/logger"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/collectors"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 type Server struct {
@@ -17,13 +21,19 @@ type Server struct {
 func New(cfg config.ServerConfig, log logger.Logger, metricsRepo repository.MetricRepository) *Server {
 	mux := http.NewServeMux()
 
-	apiRouter := http.NewServeMux()
-	apiRouter.Handle("POST /v1/metrics", newMetricsHandler(metricsRepo, log))
+	reg := prometheus.NewRegistry()
+	m := metrics.NewMetrics(reg)
+	reg.MustRegister(collectors.NewGoCollector())
 
-	apiHandler := recoverMiddleware(apiRouter, log)
+	apiRouter := http.NewServeMux()
+	apiRouter.Handle("POST /v1/metrics", newMetricsHandler(metricsRepo, log, m))
+
+	apiHandler := prometheusMiddleware(recoverMiddleware(apiRouter, log), m)
 	mux.Handle("/api/", http.StripPrefix("/api", apiHandler))
 
-	mux.HandleFunc("healthz", healthCheckHandler)
+	mux.HandleFunc("/healthz", healthCheckHandler)
+
+	mux.Handle("/metrics", promhttp.HandlerFor(reg, promhttp.HandlerOpts{}))
 
 	return &Server{
 		httpServer: &http.Server{

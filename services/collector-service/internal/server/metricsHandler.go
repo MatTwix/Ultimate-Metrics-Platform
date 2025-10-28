@@ -4,20 +4,23 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/internal/metrics"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/internal/repository"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/pkg/logger"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/pkg/models"
 )
 
 type metricsHandler struct {
-	repo repository.MetricRepository
-	log  logger.Logger
+	repo    repository.MetricRepository
+	log     logger.Logger
+	metrics *metrics.Metrics
 }
 
-func newMetricsHandler(repo repository.MetricRepository, log logger.Logger) *metricsHandler {
+func newMetricsHandler(repo repository.MetricRepository, log logger.Logger, m *metrics.Metrics) *metricsHandler {
 	return &metricsHandler{
-		repo: repo,
-		log:  log,
+		repo:    repo,
+		log:     log,
+		metrics: m,
 	}
 }
 
