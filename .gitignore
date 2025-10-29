@@ -94,8 +94,6 @@ pip
 =======
 *.sw?
 
-
-*.json
 *.csv
 *.xlsx
 
