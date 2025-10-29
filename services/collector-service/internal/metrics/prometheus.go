@@ -18,11 +18,11 @@ func NewMetrics(reg prometheus.Registerer) *Metrics {
 			Help: "Number of get requests",
 		}),
 		ResponseStatus: *promauto.With(reg).NewCounterVec(prometheus.CounterOpts{
-			Name: "http_response_status",
+			Name: "http_responce_status",
 			Help: "Status of HTTP response",
 		}, []string{"status"}),
 		HttpDuration: *promauto.With(reg).NewHistogramVec(prometheus.HistogramOpts{
-			Name: "http_respoonce_seconds",
+			Name: "http_responce_seconds",
 			Help: "Duration of HTTP requests",
 		}, []string{"path"}),
 	}

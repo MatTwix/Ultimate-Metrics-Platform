@@ -6,7 +6,7 @@ import (
 
 	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/internal/config"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/internal/metrics"
-	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/internal/repository"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/pkg/broker"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/pkg/logger"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/collectors"
@@ -18,7 +18,7 @@ type Server struct {
 	log        logger.Logger
 }
 
-func New(cfg config.ServerConfig, log logger.Logger, metricsRepo repository.MetricRepository) *Server {
+func New(cfg config.ServerConfig, log logger.Logger, broker broker.MessageBroker) *Server {
 	mux := http.NewServeMux()
 
 	reg := prometheus.NewRegistry()
@@ -26,7 +26,7 @@ func New(cfg config.ServerConfig, log logger.Logger, metricsRepo repository.Metr
 	reg.MustRegister(collectors.NewGoCollector())
 
 	apiRouter := http.NewServeMux()
-	apiRouter.Handle("POST /v1/metrics", newMetricsHandler(metricsRepo, log, m))
+	apiRouter.Handle("POST /v1/metrics", newMetricsHandler(broker, log, m))
 
 	apiHandler := recoverMiddleware(apiRouter, log)
 	mux.Handle("/api/", http.StripPrefix("/api", apiHandler))

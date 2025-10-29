@@ -5,20 +5,20 @@ import (
 	"net/http"
 
 	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/internal/metrics"
-	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/internal/repository"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/pkg/broker"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/pkg/logger"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/pkg/models"
 )
 
 type metricsHandler struct {
-	repo    repository.MetricRepository
+	broker  broker.MessageBroker
 	log     logger.Logger
 	metrics *metrics.Metrics
 }
 
-func newMetricsHandler(repo repository.MetricRepository, log logger.Logger, m *metrics.Metrics) *metricsHandler {
+func newMetricsHandler(broker broker.MessageBroker, log logger.Logger, m *metrics.Metrics) *metricsHandler {
 	return &metricsHandler{
-		repo:    repo,
+		broker:  broker,
 		log:     log,
 		metrics: m,
 	}
@@ -31,9 +31,9 @@ func (h metricsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.repo.StoreBranch(r.Context(), metrics); err != nil {
-		if batchErr, ok := err.(*repository.BatchInsertError); ok {
-			h.log.Warn("some metrics failed to be stored", "error", batchErr)
+	if err := h.broker.SendMetrics(r.Context(), metrics); err != nil {
+		if batchErr, ok := err.(*broker.SerialisationError); ok {
+			h.log.Warn("some metrics failed to be serialised", "error", batchErr)
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusMultiStatus)
 			json.NewEncoder(w).Encode(map[string]any{
@@ -45,7 +45,7 @@ func (h metricsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		h.log.Error("failed to store metrics batch", "error", err)
+		h.log.Error("failed to send metrics", "error", err)
 		http.Error(w, "internal server error", http.StatusInternalServerError)
 
 		return

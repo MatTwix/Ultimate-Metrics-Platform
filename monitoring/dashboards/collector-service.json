@@ -253,7 +253,6 @@
                 "type": "groupBy"
               }
             ],
-            "limit": null,
             "orderBy": {
               "property": {
                 "name": [
@@ -309,7 +308,6 @@
           "table": "metrics"
         }
       ],
-      "timeFrom": "1h",
       "title": "Temperature in London",
       "type": "timeseries"
     },
@@ -716,13 +714,13 @@
     "list": []
   },
   "time": {
-    "from": "now-1h",
+    "from": "now-3h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "Collector Service Metrics",
   "uid": "cb1012d2-bcef-4633-acd5-8253aa8b13f1",
-  "version": 1,
+  "version": 5,
   "weekStart": ""
 }

@@ -13,10 +13,10 @@ import (
 
 	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/internal/client"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/internal/config"
-	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/internal/database"
-	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/internal/repository"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/internal/server"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/internal/worker"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/pkg/broker"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/pkg/kafka"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/pkg/logger"
 	"github.com/fsnotify/fsnotify"
 )
@@ -52,30 +52,44 @@ func main() {
 		log.Info("config reloaded successfully")
 	})
 
+	// cfgMutex.RLock()
+	// dbConfig := cfg.Postgres
+	// cfgMutex.RUnlock()
+
+	// db, err := database.New(dbConfig)
+	// if err != nil {
+	// 	log.Error("failed to connect to database", "error", err)
+	// 	os.Exit(1)
+	// }
+	// defer db.Close()
+	// log.Info("database connected successfully")
+
+	// if err := db.RunMigrations(); err != nil {
+	// 	log.Error("failed to run database migrations", "error", err)
+	// 	os.Exit(1)
+	// }
+	// log.Info("database migrations applied successfully")
+	// var metricsRepo repository.MetricRepository = db
+
 	cfgMutex.RLock()
-	dbConfig := cfg.Postgres
-	cfgMutex.RUnlock()
-
-	db, err := database.New(dbConfig)
-	if err != nil {
-		log.Error("failed to connect to database", "error", err)
-		os.Exit(1)
-	}
-	defer db.Close()
-	log.Info("database connected successfully")
-
-	if err := db.RunMigrations(); err != nil {
-		log.Error("failed to run database migrations", "error", err)
-		os.Exit(1)
-	}
-	log.Info("database migrations applied successfully")
-	var metricsRepo repository.MetricRepository = db
-
-	cfgMutex.RLock()
+	brokerConfig := cfg.Broker
 	serverConfig := cfg.Server
+	githubConfig := cfg.Github
+	weatherConfig := cfg.OpenWeather
 	cfgMutex.RUnlock()
 
-	srv := server.New(serverConfig, log, metricsRepo)
+	var msgBroker broker.MessageBroker
+	switch brokerConfig.Type {
+	case "kafka":
+		producer := kafka.NewProducer(cfg.Broker.Kafka.Brokers, cfg.Broker.Kafka.Topic)
+		msgBroker = kafka.NewKafkaBroker(producer)
+		log.Info("kafka broker created", "brokers", cfg.Broker.Kafka.Brokers, "topic", cfg.Broker.Kafka.Topic)
+	default:
+		log.Error("unsupported broker type", "type", cfg.Broker.Type)
+		os.Exit(1)
+	}
+
+	srv := server.New(serverConfig, log, msgBroker)
 
 	go func() {
 		if err := srv.Start(); err != nil && !errors.Is(err, http.ErrServerClosed) {
@@ -84,16 +98,11 @@ func main() {
 		}
 	}()
 
-	cfgMutex.RLock()
-	githubConfig := cfg.Github
-	weatherConfig := cfg.OpenWeather
-	cfgMutex.RUnlock()
-
 	githubClient := client.NewGithubClient(githubConfig.Token)
 	weatherClient := client.NewOpenWeatherClient(weatherConfig.APIKey)
 
 	wrk := worker.New(
-		metricsRepo,
+		msgBroker,
 		log,
 		cfg.Worker.PollInterval,
 

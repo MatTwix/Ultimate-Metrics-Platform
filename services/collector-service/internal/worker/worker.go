@@ -5,13 +5,13 @@ import (
 	"time"
 
 	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/internal/client"
-	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/internal/repository"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/pkg/broker"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/pkg/logger"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/pkg/models"
 )
 
 type Worker struct {
-	repo         repository.MetricRepository
+	broker       broker.MessageBroker
 	log          logger.Logger
 	pollInterval time.Duration
 
@@ -23,7 +23,7 @@ type Worker struct {
 }
 
 func New(
-	repo repository.MetricRepository,
+	broker broker.MessageBroker,
 	log logger.Logger,
 	pollInterval time.Duration,
 
@@ -34,7 +34,7 @@ func New(
 	weatherCity string,
 ) *Worker {
 	return &Worker{
-		repo:         repo,
+		broker:       broker,
 		log:          log,
 		pollInterval: pollInterval,
 
@@ -82,12 +82,12 @@ func (w *Worker) collectUptimeMetrics(ctx context.Context) {
 		CollectedAt: time.Now(),
 	}
 
-	if err := w.repo.StoreBranch(ctx, []models.Metric{mockMetric}); err != nil {
-		w.log.Error("failed to store uptime metric", "error", err)
+	if err := w.broker.SendMetrics(ctx, []models.Metric{mockMetric}); err != nil {
+		w.log.Error("failed to send uptime metric", "error", err)
 		return
 	}
 
-	w.log.Info("successfully collected and stored uptime metric")
+	w.log.Info("successfully collected and sended uptime metric")
 }
 
 func (w *Worker) collectGithubMetrics(ctx context.Context) {
@@ -107,8 +107,8 @@ func (w *Worker) collectGithubMetrics(ctx context.Context) {
 		CollectedAt: time.Now(),
 	}
 
-	if err := w.repo.StoreBranch(ctx, []models.Metric{metric}); err != nil {
-		w.log.Error("failed to store github metric", "error", err)
+	if err := w.broker.SendMetrics(ctx, []models.Metric{metric}); err != nil {
+		w.log.Error("failed to send github metric", "error", err)
 	} else {
 		w.log.Info("successfully collected github metric", "stars", info.StargazersCount)
 	}
@@ -131,8 +131,8 @@ func (w *Worker) collectOpenWeatherMetrics(ctx context.Context) {
 		CollectedAt: time.Now(),
 	}
 
-	if err := w.repo.StoreBranch(ctx, []models.Metric{metric}); err != nil {
-		w.log.Error("failed to store weather metric", "error", err)
+	if err := w.broker.SendMetrics(ctx, []models.Metric{metric}); err != nil {
+		w.log.Error("failed to send weather metric", "error", err)
 	} else {
 		w.log.Info("successfully collected weather metric", "temperature", data.Main.Temp)
 	}
