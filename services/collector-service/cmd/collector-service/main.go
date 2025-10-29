@@ -89,6 +89,12 @@ func main() {
 		os.Exit(1)
 	}
 
+	defer func() {
+		if err := msgBroker.Close(); err != nil {
+			log.Error("failed to close broker", "error", err)
+		}
+	}()
+
 	srv := server.New(serverConfig, log, msgBroker)
 
 	go func() {

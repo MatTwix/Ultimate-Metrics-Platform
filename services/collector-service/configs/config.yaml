@@ -5,19 +5,6 @@ server:
   timeout: 4s
   idle_timeout: 30s
 
-postgres:
-  host: "localhost"
-  port: "5432"
-  user: ""
-  password: ""
-  dbname: ""
-  sslmode: ""
-  pool:
-    max_open_conns: 25
-    max_idle_conns: 10
-    conn_max_lifetime: 30m
-    conn_max_idle_time: 10m
-
 redis:
   addr: "localhost:6379"
   password: ""
