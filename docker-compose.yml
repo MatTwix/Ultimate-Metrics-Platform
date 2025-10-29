@@ -56,10 +56,14 @@ services:
     ports:
       - "3000:3000"
     environment:
+      - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DBNAME=${POSTGRES_DBNAME}
     restart: on-failure
     volumes:
       - ./monitoring/grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
+      - ./monitoring/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+      - ./monitoring/dashboards:/etc/grafana/dashboards
       - grafana-data:/var/lib/grafana
     depends_on:
       - prometheus

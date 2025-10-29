@@ -102,7 +102,7 @@ func (w *Worker) collectGithubMetrics(ctx context.Context) {
 	metric := models.Metric{
 		Source:      "GitHub",
 		Name:        "stargazers_count",
-		Value:       float64(info.StrangazersCount),
+		Value:       float64(info.StargazersCount),
 		Labels:      map[string]any{"repository": w.githubRepo},
 		CollectedAt: time.Now(),
 	}
@@ -110,7 +110,7 @@ func (w *Worker) collectGithubMetrics(ctx context.Context) {
 	if err := w.repo.StoreBranch(ctx, []models.Metric{metric}); err != nil {
 		w.log.Error("failed to store github metric", "error", err)
 	} else {
-		w.log.Info("successfully collected github metric", "stars", info.StrangazersCount)
+		w.log.Info("successfully collected github metric", "stars", info.StargazersCount)
 	}
 }
 

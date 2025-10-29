@@ -21,7 +21,7 @@ func NewGithubClient(token string) *GithubClient {
 }
 
 type RepoInfo struct {
-	StrangazersCount int `json:"strangazers_count"`
+	StargazersCount int `json:"stargazers_count"`
 }
 
 func (c *GithubClient) GetRepoInfo(ctx context.Context, repoName string) (*RepoInfo, error) {
@@ -29,7 +29,7 @@ func (c *GithubClient) GetRepoInfo(ctx context.Context, repoName string) (*RepoI
 		return nil, fmt.Errorf("invalid repo name format, expected 'owner/repo'")
 	}
 
-	url := fmt.Sprintf("https://api.github.con/repos/%s", repoName)
+	url := fmt.Sprintf("https://api.github.com/repos/%s", repoName)
 	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)

@@ -70,7 +70,7 @@ func (s *Storage) RunMigrations() error {
 		return fmt.Errorf("migration failed: %w", err)
 	}
 
-	if err := m.Up(); err != nil && errors.Is(err, migrate.ErrNoChange) {
+	if err := m.Up(); err != nil && !errors.Is(err, migrate.ErrNoChange) {
 		return fmt.Errorf("an error occured while syncing the database: %w", err)
 	}
 
@@ -111,7 +111,7 @@ func (s *Storage) StoreBranch(ctx context.Context, metrics []models.Metric) erro
 			continue
 		}
 
-		_, err = statement.Exec(ctx, metric.Source, metric.Name, metric.Value, labelsJSON, metric.CollectedAt)
+		_, err = statement.Exec(metric.Source, metric.Name, metric.Value, labelsJSON, metric.CollectedAt)
 		if err != nil {
 			batchErr.FailedCount++
 			batchErr.Errors = append(batchErr.Errors, fmt.Errorf("metric %s/%s: db insert failed: %w",

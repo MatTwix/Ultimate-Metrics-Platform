@@ -53,7 +53,7 @@ type WorkerConfig struct {
 }
 
 type GithubConfig struct {
-	Token      string `mapstructure:"worker"`
+	Token      string `mapstructure:"token"`
 	Repository string `mapstructure:"repository"`
 }
 

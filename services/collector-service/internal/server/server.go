@@ -28,17 +28,18 @@ func New(cfg config.ServerConfig, log logger.Logger, metricsRepo repository.Metr
 	apiRouter := http.NewServeMux()
 	apiRouter.Handle("POST /v1/metrics", newMetricsHandler(metricsRepo, log, m))
 
-	apiHandler := prometheusMiddleware(recoverMiddleware(apiRouter, log), m)
+	apiHandler := recoverMiddleware(apiRouter, log)
 	mux.Handle("/api/", http.StripPrefix("/api", apiHandler))
 
 	mux.HandleFunc("/healthz", healthCheckHandler)
-
 	mux.Handle("/metrics", promhttp.HandlerFor(reg, promhttp.HandlerOpts{}))
+
+	finalHandler := prometheusMiddleware(mux, m)
 
 	return &Server{
 		httpServer: &http.Server{
 			Addr:         ":" + cfg.Port,
-			Handler:      mux,
+			Handler:      finalHandler,
 			ReadTimeout:  cfg.Timeout,
 			WriteTimeout: cfg.Timeout,
 			IdleTimeout:  cfg.IdleTimeout,

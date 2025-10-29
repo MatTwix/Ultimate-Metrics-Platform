@@ -26,7 +26,7 @@ type WeatherData struct {
 }
 
 func (c *OpenWeatherClient) GetCurrentTemperature(ctx context.Context, city string) (*WeatherData, error) {
-	url := fmt.Sprintf("https://api.openwaethermap.org/data/2.5/weather?q=%s&appid=%s&units=metric", city, c.apiKey)
+	url := fmt.Sprintf("https://api.openweathermap.org/data/2.5/weather?q=%s&appid=%s&units=metric", city, c.apiKey)
 
 	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
