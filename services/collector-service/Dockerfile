@@ -8,17 +8,16 @@ WORKDIR /app/services/collector-service
 
 RUN go mod download
 
-RUN go build -o /app/server ./cmd/collector-service
+RUN CGO_ENABLED=0 GOOS=linux go build -o /app/collector-service ./cmd/collector-service
 
 FROM alpine:latest
 
 WORKDIR /app
 
-COPY --from=builder /app/server .
+COPY --from=builder /app/collector-service .
 
 COPY ./services/collector-service/configs ./configs
-COPY ./services/collector-service/internal/database/migrations ./internal/database/migrations
 
 EXPOSE 8080
 
-CMD ["/app/server"]
+CMD ["/app/collector-service"]
