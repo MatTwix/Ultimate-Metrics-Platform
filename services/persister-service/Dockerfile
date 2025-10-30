@@ -8,7 +8,7 @@ WORKDIR /app/services/persister-service
 
 RUN go mod download
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o /app/persister-service ./services/persister-service/cmd/persister-service
+RUN CGO_ENABLED=0 GOOS=linux go build -o /app/persister-service ./cmd/persister-service
 
 FROM alpine:latest
 

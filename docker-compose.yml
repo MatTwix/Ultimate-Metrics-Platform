@@ -13,7 +13,8 @@ services:
       - OPEN_WEATHER_API_KEY=${OPEN_WEATHER_API_KEY}
       - OPEN_WEATHER_CITY=${OPEN_WEATHER_CITY}
     depends_on:
-      - kafka
+      kafka:
+        condition: service_healthy
     networks:
       - app-network
   postgres:
@@ -28,6 +29,11 @@ services:
     restart: always
     volumes:
       - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DBNAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - app-network
   persister-service:
@@ -43,8 +49,10 @@ services:
       - POSTGRES_DBNAME=${POSTGRES_DBNAME}
       - POSTGRES_SSLMODE=disable
     depends_on:
-      - postgres
-      - kafka
+      kafka:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
     networks:
       - app-network
   prometheus:
@@ -88,7 +96,8 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
-    
+    networks:
+      - app-network
   kafka:
     image: confluentinc/cp-kafka:7.3.0
     container_name: kafka
@@ -110,18 +119,20 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
-  
+    networks:
+      - app-network
   kafdrop:
     image: obsidiandynamics/kafdrop:latest
     container_name: kafdrop
     depends_on:
-      - kafka
+      kafka:
+        condition: service_healthy
     ports:
       - "19000:9000"
     environment:
       KAFKA_BROKERCONNECT: kafka:9092
-
-
+    networks:
+      - app-network
 
 volumes:
   postgres-data:

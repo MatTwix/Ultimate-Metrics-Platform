@@ -18,7 +18,7 @@ postgres:
     conn_max_lifetime: 30m
     conn_max_idle_time: 10m
 
-consumer:
+broker:
   type: "kafka"
   kafka:
     brokers:  
