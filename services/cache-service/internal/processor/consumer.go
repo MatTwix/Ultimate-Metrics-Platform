@@ -23,6 +23,19 @@ func NewConsumer(messageConsumer consumer.MessageConsumer, cache cache.Cache, lo
 	}
 }
 
+func getTTl(source string) time.Duration {
+	switch source {
+	case "GitHub":
+		return 10 * time.Minute
+	case "OpenWeatherMap":
+		return 5 * time.Minute
+	case "UptimeChecker":
+		return 1 * time.Minute
+	default:
+		return 5 * time.Minute
+	}
+}
+
 func (c *Consumer) Start(ctx context.Context) {
 	c.log.Info("starting cache consumer")
 
@@ -39,7 +52,14 @@ func (c *Consumer) Start(ctx context.Context) {
 				continue
 			}
 
-			if err := c.cache.SetMetric(ctx, metric); err != nil {
+			if cached, ok := metric.Labels["cached"].(string); ok && cached == "true" {
+				c.log.Debug("skipping cached metric", "source", metric.Source)
+				continue
+			}
+
+			ttl := getTTl(metric.Source)
+
+			if err := c.cache.SetMetric(ctx, metric, ttl); err != nil {
 				c.log.Error("failed to cache metric", "error", err)
 				continue
 			}

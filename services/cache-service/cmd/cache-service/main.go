@@ -102,7 +102,7 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	log.Info("starting persister-service")
+	log.Info("starting cache-service")
 	proc.Start(ctx)
 
 	quit := make(chan os.Signal, 1)

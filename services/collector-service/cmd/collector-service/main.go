@@ -16,6 +16,7 @@ import (
 	"github.com/MatTwix/Ultimate-Metrics-Platform/services/collector-service/internal/server"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/services/collector-service/internal/worker"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/services/collector-service/pkg/broker"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/collector-service/pkg/grpc"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/services/collector-service/pkg/kafka"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/services/collector-service/pkg/logger"
 	"github.com/fsnotify/fsnotify"
@@ -57,6 +58,7 @@ func main() {
 	serverConfig := cfg.Server
 	githubConfig := cfg.Github
 	weatherConfig := cfg.OpenWeather
+	urlsConfig := cfg.Urls
 	cfgMutex.RUnlock()
 
 	var msgBroker broker.MessageBroker
@@ -85,11 +87,18 @@ func main() {
 		}
 	}()
 
+	cacheClient, err := grpc.NewCacheClient(urlsConfig.CacheService)
+	if err != nil {
+		log.Warn("cache service unavailable, proceeding without cache", "error", err)
+		cacheClient = nil
+	}
+
 	githubClient := client.NewGithubClient(githubConfig.Token)
 	weatherClient := client.NewOpenWeatherClient(weatherConfig.APIKey)
 
 	wrk := worker.New(
 		msgBroker,
+		cacheClient,
 		log,
 		cfg.Worker.PollInterval,
 

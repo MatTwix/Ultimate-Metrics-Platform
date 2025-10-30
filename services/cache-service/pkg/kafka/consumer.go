@@ -28,10 +28,15 @@ func NewKafkaConsumer(brokers []string, topic, groupID string) consumer.MessageC
 }
 
 func (k *KafkaConsumer) ConsumeMetric(ctx context.Context) (models.Metric, error) {
+	// log.Println("Kafka Consumer: trying to read message")
+
 	msg, err := k.reader.ReadMessage(ctx)
 	if err != nil {
+		// log.Println("Kafka Consumer: failed to read message", err)
 		return models.Metric{}, err
 	}
+
+	// log.Println("Kafka Consumer: read message", string(msg.Value))
 
 	var metric models.Metric
 	err = json.Unmarshal(msg.Value, &metric)

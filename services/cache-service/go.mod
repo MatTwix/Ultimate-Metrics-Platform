@@ -2,7 +2,7 @@ module github.com/MatTwix/Ultimate-Metrics-Platform/services/cache-service
 
 go 1.24.0
 
-toolchain go1.24.9
+toolchain go1.25.3
 
 require (
 	github.com/fsnotify/fsnotify v1.9.0

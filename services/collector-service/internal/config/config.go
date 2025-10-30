@@ -16,6 +16,7 @@ type Config struct {
 	Github      GithubConfig      `mapstructure:"github"`
 	OpenWeather OpenWeatherConfig `mapstructure:"open_weather"`
 	Broker      BrokerConfig      `mapstructure:"broker"`
+	Urls        UrlsConfig        `mapstructure:"urls"`
 }
 
 type ServerConfig struct {
@@ -46,6 +47,10 @@ type BrokerConfig struct {
 type KafkaConfig struct {
 	Brokers []string `mapstructure:"brokers"`
 	Topic   string   `mapstructure:"topic"`
+}
+
+type UrlsConfig struct {
+	CacheService string `mapstructure:"cache_service"`
 }
 
 func LoadConfig(path string) (*Config, error) {

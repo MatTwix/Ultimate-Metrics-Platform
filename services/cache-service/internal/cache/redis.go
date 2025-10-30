@@ -19,14 +19,14 @@ func NewredisCache(client *redis.Client) Cache {
 	return &RedisCache{client: client}
 }
 
-func (r *RedisCache) SetMetric(ctx context.Context, metric models.Metric) error {
+func (r *RedisCache) SetMetric(ctx context.Context, metric models.Metric, ttl time.Duration) error {
 	key := fmt.Sprintf("%s:%s", metric.Source, metric.Name)
 	data, err := json.Marshal(metric)
 	if err != nil {
 		return fmt.Errorf("failed to marshal data for caching: %w", err)
 	}
 
-	return r.client.Set(ctx, key, data, 5*time.Minute).Err()
+	return r.client.Set(ctx, key, data, ttl).Err()
 }
 
 func (r *RedisCache) GetMetric(ctx context.Context, source, name string) (*models.Metric, error) {

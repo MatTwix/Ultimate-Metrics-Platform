@@ -5,10 +5,8 @@ server:
   timeout: 4s
   idle_timeout: 30s
 
-redis:
-  addr: "localhost:6379"
-  password: ""
-  db: 0
+urls:
+  cache_service: "cache-service:50051"
 
 worker:
   poll_interval: 1m
