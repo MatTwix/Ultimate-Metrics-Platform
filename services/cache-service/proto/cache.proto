@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package cache;
+
+option go_package = "github.com/MatTwix/Ultimate-Metrics-Platform/cache-service/proto";
+
+service CacheService {
+    rpc GetMetric(GetMetricRequest) returns (GetMetricResponse);
+}
+
+message GetMetricRequest{
+    string source = 1;
+    string name = 2;
+}
+
+message GetMetricResponse {
+    Metric metric = 1;
+}
+
+message Metric {
+    string source = 1;
+    string name = 2;
+    double value = 3;
+    map<string, string> labels = 4;
+    string collected_at = 5;
+}

@@ -1,0 +1,17 @@
+env: "dev"
+
+redis:
+  addr: "localhost:6379"
+  password: ""
+  db: 0
+
+broker:
+  type: "kafka"
+  kafka:
+    brokers:  
+      - "kafka:9092"
+    topic: "metrics"
+    group_id: "cache-group"
+
+grpc:
+  port: "50051"

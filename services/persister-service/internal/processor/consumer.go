@@ -35,7 +35,7 @@ func (c *Consumer) Start(ctx context.Context) {
 		default:
 			metric, err := c.messageConsumer.ConsumeMetric(ctx)
 			if err != nil {
-				c.log.Error("failed to consumer metric", "error", err)
+				c.log.Error("failed to consume metric", "error", err)
 				time.Sleep(time.Second)
 				continue
 			}

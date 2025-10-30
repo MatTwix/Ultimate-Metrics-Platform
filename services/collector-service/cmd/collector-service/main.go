@@ -52,25 +52,6 @@ func main() {
 		log.Info("config reloaded successfully")
 	})
 
-	// cfgMutex.RLock()
-	// dbConfig := cfg.Postgres
-	// cfgMutex.RUnlock()
-
-	// db, err := database.New(dbConfig)
-	// if err != nil {
-	// 	log.Error("failed to connect to database", "error", err)
-	// 	os.Exit(1)
-	// }
-	// defer db.Close()
-	// log.Info("database connected successfully")
-
-	// if err := db.RunMigrations(); err != nil {
-	// 	log.Error("failed to run database migrations", "error", err)
-	// 	os.Exit(1)
-	// }
-	// log.Info("database migrations applied successfully")
-	// var metricsRepo repository.MetricRepository = db
-
 	cfgMutex.RLock()
 	brokerConfig := cfg.Broker
 	serverConfig := cfg.Server

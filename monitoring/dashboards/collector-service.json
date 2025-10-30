@@ -400,7 +400,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT \n  collected_At AS \"time\",\n  value AS \"uptime\"\nFROM metrics WHERE source = 'UptimeChecker' AND name = 'availability_percent' AND $__timeFilter(collected_At) ORDER BY collected_At ASC ",
+          "rawSql": "SELECT \n  collected_at AS \"time\",\n  value AS \"uptime\"\nFROM metrics WHERE source = 'UptimeChecker' AND name = 'availability_percent' AND $__timeFilter(collected_at) ORDER BY collected_at ASC ",
           "refId": "A",
           "sql": {
             "columns": [

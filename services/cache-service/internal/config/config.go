@@ -3,39 +3,22 @@ package config
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
 )
 
 type Config struct {
-	Env         string            `mapstructure:"env"`
-	Server      ServerConfig      `mapstructure:"server"`
-	Worker      WorkerConfig      `mapstructure:"worker"`
-	Github      GithubConfig      `mapstructure:"github"`
-	OpenWeather OpenWeatherConfig `mapstructure:"open_weather"`
-	Broker      BrokerConfig      `mapstructure:"broker"`
+	Env    string       `mapstructure:"env"`
+	Redis  RedisConfig  `mapstructure:"redis"`
+	Broker BrokerConfig `mapstructure:"broker"`
+	GRPC   GRPCConfig   `mapstructure:"grpc"`
 }
 
-type ServerConfig struct {
-	Port        string        `mapstructure:"port"`
-	Timeout     time.Duration `mapstructure:"timeout"`
-	IdleTimeout time.Duration `mapstructure:"idle_timeout"`
-}
-
-type WorkerConfig struct {
-	PollInterval time.Duration `mapstructure:"poll_interval"`
-}
-
-type GithubConfig struct {
-	Token      string `mapstructure:"token"`
-	Repository string `mapstructure:"repository"`
-}
-
-type OpenWeatherConfig struct {
-	APIKey string `mapstructure:"api_key"`
-	City   string `mapstructure:"city"`
+type RedisConfig struct {
+	Addr     string `mapstructure:"addr"`
+	Password string `mapstructure:"password"`
+	DB       int    `mapstructure:"db"`
 }
 
 type BrokerConfig struct {
@@ -46,6 +29,11 @@ type BrokerConfig struct {
 type KafkaConfig struct {
 	Brokers []string `mapstructure:"brokers"`
 	Topic   string   `mapstructure:"topic"`
+	GroupID string   `mapstructure:"group_id"`
+}
+
+type GRPCConfig struct {
+	Port string `mapstructure:"port"`
 }
 
 func LoadConfig(path string) (*Config, error) {
