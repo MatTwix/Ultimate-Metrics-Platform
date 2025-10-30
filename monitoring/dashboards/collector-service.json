@@ -313,6 +313,120 @@
     },
     {
       "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 6,
+        "y": 16
+      },
+      "id": 7,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \n  collected_At AS \"time\",\n  value AS \"uptime\"\nFROM metrics WHERE source = 'UptimeChecker' AND name = 'availability_percent' AND $__timeFilter(collected_At) ORDER BY collected_At ASC ",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "table": "metrics"
+        }
+      ],
+      "title": "Uptime: google.com",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
         "type": "prometheus",
         "uid": "PBFA97CFB590B2093"
       },
@@ -373,7 +487,7 @@
         "h": 8,
         "w": 12,
         "x": 6,
-        "y": 16
+        "y": 24
       },
       "id": 1,
       "options": {
@@ -471,7 +585,7 @@
         "h": 8,
         "w": 12,
         "x": 6,
-        "y": 24
+        "y": 32
       },
       "id": 2,
       "options": {
@@ -553,8 +667,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -570,7 +683,7 @@
         "h": 8,
         "w": 12,
         "x": 6,
-        "y": 32
+        "y": 40
       },
       "id": 3,
       "options": {
@@ -652,8 +765,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -669,7 +781,7 @@
         "h": 8,
         "w": 12,
         "x": 6,
-        "y": 40
+        "y": 48
       },
       "id": 4,
       "options": {
@@ -721,6 +833,6 @@
   "timezone": "",
   "title": "Collector Service Metrics",
   "uid": "cb1012d2-bcef-4633-acd5-8253aa8b13f1",
-  "version": 5,
+  "version": 1,
   "weekStart": ""
 }

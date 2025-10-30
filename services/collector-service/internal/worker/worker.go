@@ -2,6 +2,7 @@ package worker
 
 import (
 	"context"
+	"net/http"
 	"time"
 
 	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/internal/client"
@@ -70,19 +71,39 @@ func (w *Worker) collectAllMetrics(ctx context.Context) {
 	w.collectOpenWeatherMetrics(ctx)
 }
 
+func checkUptime(url string, timeout time.Duration) (float64, error) {
+	client := &http.Client{Timeout: timeout}
+	resp, err := client.Get(url)
+	if err != nil {
+		return 0, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
+		return 100, nil
+	}
+
+	return 0, nil
+}
+
 func (w *Worker) collectUptimeMetrics(ctx context.Context) {
 	w.log.Info("collecting uptime metrics...")
 
-	//TODO: replace placeholder with real data
-	mockMetric := models.Metric{
-		Source:      "Source",
+	uptimePercent, err := checkUptime("https://www.google.com", 5*time.Second)
+	if err != nil {
+		w.log.Error("failed to check uptime", "error", err)
+		uptimePercent = 0
+	}
+
+	metric := models.Metric{
+		Source:      "UptimeChecker",
 		Name:        "availability_percent",
-		Value:       99.9,
+		Value:       uptimePercent,
 		Labels:      map[string]any{"site": "google.com"},
 		CollectedAt: time.Now(),
 	}
 
-	if err := w.broker.SendMetrics(ctx, []models.Metric{mockMetric}); err != nil {
+	if err := w.broker.SendMetrics(ctx, []models.Metric{metric}); err != nil {
 		w.log.Error("failed to send uptime metric", "error", err)
 		return
 	}
