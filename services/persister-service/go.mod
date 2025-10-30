@@ -1,4 +1,4 @@
-module github.com/MatTwix/Ultimate-Metrics-Platform/persister-service
+module github.com/MatTwix/Ultimate-Metrics-Platform/services/persister-service
 
 go 1.23.6
 

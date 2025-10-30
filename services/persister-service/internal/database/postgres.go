@@ -9,9 +9,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/MatTwix/Ultimate-Metrics-Platform/persister-service/internal/config"
-	"github.com/MatTwix/Ultimate-Metrics-Platform/persister-service/internal/repository"
-	"github.com/MatTwix/Ultimate-Metrics-Platform/persister-service/pkg/models"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/persister-service/internal/config"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/persister-service/internal/repository"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/persister-service/pkg/models"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	"github.com/golang-migrate/migrate/v4/source/iofs"

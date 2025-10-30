@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/MatTwix/Ultimate-Metrics-Platform/cache-service/internal/cache"
-	"github.com/MatTwix/Ultimate-Metrics-Platform/cache-service/proto"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/cache-service/internal/cache"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/cache-service/proto"
 )
 
 type Server struct {

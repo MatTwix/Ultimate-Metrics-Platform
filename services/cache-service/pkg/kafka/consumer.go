@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/MatTwix/Ultimate-Metrics-Platform/cache-service/pkg/consumer"
-	"github.com/MatTwix/Ultimate-Metrics-Platform/cache-service/pkg/models"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/cache-service/pkg/consumer"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/cache-service/pkg/models"
 	"github.com/segmentio/kafka-go"
 )
 

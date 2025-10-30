@@ -11,13 +11,13 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/internal/client"
-	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/internal/config"
-	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/internal/server"
-	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/internal/worker"
-	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/pkg/broker"
-	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/pkg/kafka"
-	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/pkg/logger"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/collector-service/internal/client"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/collector-service/internal/config"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/collector-service/internal/server"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/collector-service/internal/worker"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/collector-service/pkg/broker"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/collector-service/pkg/kafka"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/collector-service/pkg/logger"
 	"github.com/fsnotify/fsnotify"
 )
 

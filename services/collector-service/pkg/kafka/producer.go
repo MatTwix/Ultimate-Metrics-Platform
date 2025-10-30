@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/pkg/broker"
-	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/pkg/models"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/collector-service/pkg/broker"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/collector-service/pkg/models"
 	"github.com/segmentio/kafka-go"
 )
 

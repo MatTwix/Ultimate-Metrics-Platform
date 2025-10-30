@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/internal/client"
-	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/pkg/broker"
-	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/pkg/logger"
-	"github.com/MatTwix/Ultimate-Metrics-Platform/collector-service/pkg/models"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/collector-service/internal/client"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/collector-service/pkg/broker"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/collector-service/pkg/logger"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/collector-service/pkg/models"
 )
 
 type Worker struct {

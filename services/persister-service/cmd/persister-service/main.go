@@ -8,13 +8,13 @@ import (
 	"sync"
 	"syscall"
 
-	"github.com/MatTwix/Ultimate-Metrics-Platform/persister-service/internal/config"
-	"github.com/MatTwix/Ultimate-Metrics-Platform/persister-service/internal/database"
-	"github.com/MatTwix/Ultimate-Metrics-Platform/persister-service/internal/processor"
-	"github.com/MatTwix/Ultimate-Metrics-Platform/persister-service/internal/repository"
-	"github.com/MatTwix/Ultimate-Metrics-Platform/persister-service/pkg/consumer"
-	"github.com/MatTwix/Ultimate-Metrics-Platform/persister-service/pkg/kafka"
-	"github.com/MatTwix/Ultimate-Metrics-Platform/persister-service/pkg/logger"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/persister-service/internal/config"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/persister-service/internal/database"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/persister-service/internal/processor"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/persister-service/internal/repository"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/persister-service/pkg/consumer"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/persister-service/pkg/kafka"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/persister-service/pkg/logger"
 	"github.com/fsnotify/fsnotify"
 )
 

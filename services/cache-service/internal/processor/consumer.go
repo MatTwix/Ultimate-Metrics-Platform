@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
-	"github.com/MatTwix/Ultimate-Metrics-Platform/cache-service/internal/cache"
-	"github.com/MatTwix/Ultimate-Metrics-Platform/cache-service/pkg/consumer"
-	"github.com/MatTwix/Ultimate-Metrics-Platform/cache-service/pkg/logger"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/cache-service/internal/cache"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/cache-service/pkg/consumer"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/cache-service/pkg/logger"
 )
 
 type Consumer struct {

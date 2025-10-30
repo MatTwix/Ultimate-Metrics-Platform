@@ -4,10 +4,10 @@ import (
 	"context"
 	"time"
 
-	"github.com/MatTwix/Ultimate-Metrics-Platform/persister-service/internal/repository"
-	"github.com/MatTwix/Ultimate-Metrics-Platform/persister-service/pkg/consumer"
-	"github.com/MatTwix/Ultimate-Metrics-Platform/persister-service/pkg/logger"
-	"github.com/MatTwix/Ultimate-Metrics-Platform/persister-service/pkg/models"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/persister-service/internal/repository"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/persister-service/pkg/consumer"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/persister-service/pkg/logger"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/persister-service/pkg/models"
 )
 
 type Consumer struct {

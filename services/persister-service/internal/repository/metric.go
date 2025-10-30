@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 
-	"github.com/MatTwix/Ultimate-Metrics-Platform/persister-service/pkg/models"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/persister-service/pkg/models"
 )
 
 type MetricRepository interface {

@@ -49,7 +49,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-  сache-service:
+  cache-service:
     build:
       context: .
       dockerfile: ./services/cache-service/Dockerfile

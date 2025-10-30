@@ -3,7 +3,7 @@ package cache
 import (
 	"context"
 
-	"github.com/MatTwix/Ultimate-Metrics-Platform/cache-service/pkg/models"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/cache-service/pkg/models"
 )
 
 type Cache interface {

@@ -1,4 +1,4 @@
-module github.com/MatTwix/Ultimate-Metrics-Platform/cache-service
+module github.com/MatTwix/Ultimate-Metrics-Platform/services/cache-service
 
 go 1.24.0
 
