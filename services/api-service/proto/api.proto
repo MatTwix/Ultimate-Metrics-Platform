@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package api;
+
+option go_package = "github.com/MatTwix/Ultimate-Metrics-Platform/api-service/proto";
+
+service MetricsService {
+    rpc GetMetrics(GetMetricsRequest) returns (GetMetricsResponse);
+    rpc GetMetric(GetMetricRequest) returns (GetMetricResponse);
+}
+
+message GetMetricsRequest {
+    string source = 1;
+    string name = 2;
+    int64 limit = 3;
+}
+
+message GetMetricsResponse {
+    repeated Metric metrics = 1;
+}
+
+message GetMetricRequest {
+    string source = 1;
+    string name = 2;
+}
+
+message GetMetricResponse {
+    Metric metric = 1;
+}
+
+message Metric {
+    string source = 1;
+    string name = 2;
+    double value = 3;
+    map<string, string> labels = 4;
+    string collected_at = 5;
+}

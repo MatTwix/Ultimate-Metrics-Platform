@@ -82,7 +82,7 @@
       "gridPos": {
         "h": 8,
         "w": 12,
-        "x": 6,
+        "x": 0,
         "y": 0
       },
       "id": 5,
@@ -195,8 +195,8 @@
       "gridPos": {
         "h": 8,
         "w": 12,
-        "x": 6,
-        "y": 8
+        "x": 12,
+        "y": 0
       },
       "id": 6,
       "options": {
@@ -376,7 +376,7 @@
         "h": 8,
         "w": 12,
         "x": 6,
-        "y": 16
+        "y": 8
       },
       "id": 7,
       "options": {
@@ -486,8 +486,8 @@
       "gridPos": {
         "h": 8,
         "w": 12,
-        "x": 6,
-        "y": 24
+        "x": 0,
+        "y": 16
       },
       "id": 1,
       "options": {
@@ -584,8 +584,8 @@
       "gridPos": {
         "h": 8,
         "w": 12,
-        "x": 6,
-        "y": 32
+        "x": 12,
+        "y": 16
       },
       "id": 2,
       "options": {
@@ -667,7 +667,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -682,8 +683,8 @@
       "gridPos": {
         "h": 8,
         "w": 12,
-        "x": 6,
-        "y": 40
+        "x": 0,
+        "y": 24
       },
       "id": 3,
       "options": {
@@ -765,7 +766,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -780,8 +782,8 @@
       "gridPos": {
         "h": 8,
         "w": 12,
-        "x": 6,
-        "y": 48
+        "x": 12,
+        "y": 24
       },
       "id": 4,
       "options": {
