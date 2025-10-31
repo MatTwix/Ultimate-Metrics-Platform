@@ -81,7 +81,7 @@ func main() {
 
 	aggregator := aggregator.NewAggregator(apiClient, writer)
 
-	processor := processor.NewProcessor(aggregator, log, time.Minute)
+	processor := processor.NewProcessor(aggregator, log, time.Hour)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
