@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/MatTwix/Ultimate-Metrics-Platform/api-service/internal/config"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/api-service/internal/config"
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 

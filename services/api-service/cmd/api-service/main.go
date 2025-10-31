@@ -8,11 +8,11 @@ import (
 	"sync"
 	"syscall"
 
-	"github.com/MatTwix/Ultimate-Metrics-Platform/api-service/internal/config"
-	"github.com/MatTwix/Ultimate-Metrics-Platform/api-service/internal/database"
-	grpcInternal "github.com/MatTwix/Ultimate-Metrics-Platform/api-service/internal/grpc"
-	"github.com/MatTwix/Ultimate-Metrics-Platform/api-service/pkg/logger"
-	"github.com/MatTwix/Ultimate-Metrics-Platform/api-service/proto"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/api-service/internal/config"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/api-service/internal/database"
+	grpcInternal "github.com/MatTwix/Ultimate-Metrics-Platform/services/api-service/internal/grpc"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/api-service/pkg/logger"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/api-service/proto"
 	"github.com/fsnotify/fsnotify"
 	"google.golang.org/grpc"
 )

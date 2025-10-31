@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/MatTwix/Ultimate-Metrics-Platform/api-service/pkg/reader"
-	"github.com/MatTwix/Ultimate-Metrics-Platform/api-service/proto"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/api-service/pkg/reader"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/api-service/proto"
 )
 
 type Server struct {

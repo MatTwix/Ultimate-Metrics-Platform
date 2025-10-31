@@ -1,4 +1,4 @@
-module github.com/MatTwix/Ultimate-Metrics-Platform/api-service
+module github.com/MatTwix/Ultimate-Metrics-Platform/services/api-service
 
 go 1.24.0
 

@@ -3,7 +3,7 @@ package reader
 import (
 	"context"
 
-	"github.com/MatTwix/Ultimate-Metrics-Platform/api-service/pkg/models"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/api-service/pkg/models"
 )
 
 type MetricsReader interface {

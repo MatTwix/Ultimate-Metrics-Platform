@@ -326,7 +326,7 @@ const file_proto_api_proto_rawDesc = "" +
 	"\x0eMetricsService\x12=\n" +
 	"\n" +
 	"GetMetrics\x12\x16.api.GetMetricsRequest\x1a\x17.api.GetMetricsResponse\x12:\n" +
-	"\tGetMetric\x12\x15.api.GetMetricRequest\x1a\x16.api.GetMetricResponseB@Z>github.com/MatTwix/Ultimate-Metrics-Platform/api-service/protob\x06proto3"
+	"\tGetMetric\x12\x15.api.GetMetricRequest\x1a\x16.api.GetMetricResponseB@Z>github.com/MatTwix/Ultimate-Metrics-Platform/services/api-service/protob\x06proto3"
 
 var (
 	file_proto_api_proto_rawDescOnce sync.Once

@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package api;
 
-option go_package = "github.com/MatTwix/Ultimate-Metrics-Platform/api-service/proto";
+option go_package = "github.com/MatTwix/Ultimate-Metrics-Platform/services/api-service/proto";
 
 service MetricsService {
     rpc GetMetrics(GetMetricsRequest) returns (GetMetricsResponse);
