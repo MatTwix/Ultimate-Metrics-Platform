@@ -1,0 +1,20 @@
+env: "dev"
+
+mongo:
+  host: "mongodb"
+  user: ""
+  password: ""
+  port: "27017"
+  dbname: ""
+  collection: "aggregated_metrics"
+
+urls:
+  api_service: "api-service:50052"
+
+metrics:
+  - source: "GitHub"
+    names: ["stargazers_count"]
+  - source: "OpenWeatherMap"
+    names: ["temperature_celsius"]
+  - source: "UptimeChecker"
+    names: ["availability_percent"]

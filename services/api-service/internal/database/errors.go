@@ -14,7 +14,7 @@ type MultipleSelectError struct {
 func (e *MultipleSelectError) Error() string {
 	var sb strings.Builder
 	sb.WriteString(fmt.Sprintf(
-		"batch insertion completed with %d successes and %d failures. Failures:",
+		"selection completed with %d successes and %d failures. Failures:",
 		e.SuccessfullCount, e.FailedCount,
 	))
 

@@ -14,7 +14,7 @@ type SerialisationError struct {
 func (e *SerialisationError) Error() string {
 	var sb strings.Builder
 	sb.WriteString(fmt.Sprintf(
-		"batch insertion completed with %d successes and %d failures. Failures:",
+		"serialization completed with %d successes and %d failures. Failures:",
 		e.SuccessfullCount, e.FailedCount,
 	))
 
