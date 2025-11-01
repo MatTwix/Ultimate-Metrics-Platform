@@ -80,7 +80,7 @@ jobs:
 
                     echo "REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}" >> .env
                     
-                    echo "GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> .env
+                    echo "GITHUB_TOKEN=${{ secrets.GH_TOKEN }}" >> .env
 
                     echo "OPEN_WEATHER_API_KEY=${{ secrets.OPEN_WEATHER_API_KEY }}" >> .env
                     echo "OPEN_WEATHER_CITY=${{ secrets.OPEN_WEATHER_CITY }}" >> .env
