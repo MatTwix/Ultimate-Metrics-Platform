@@ -5,7 +5,7 @@ on:
 
 env:
     REGISTRY: docker.io
-    IMAGE_NAME: ${{ github.repository }}
+    IMAGE_NAME: ultimate-metrics-platform
 
 jobs:
     build-and-push:
