@@ -1,0 +1,22 @@
+env: "dev"
+
+redis:
+  addr: "localhost:6379"
+  password: ""
+  db: 0
+
+broker:
+  type: "kafka"
+  kafka:
+    brokers:  
+      - "kafka:9092"
+    topic: "metrics"
+    group_id: "notifier-group"
+
+email:
+  smtphost: ""
+  smtpport: ""
+  from: ""
+  username: ""
+  password: ""
+  to: ""
