@@ -1,0 +1,98 @@
+name: Build, push and deploy
+on: 
+    push:
+        branches: [ main ]
+
+env:
+    REGISTRY: docker.io
+    IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+    build-and-push:
+        runs-on: self-hosted
+
+        steps:
+            -
+                name: Checkout code
+                uses: actions/checkout@v5.0.0
+            -   
+                name: Login to Docker Hub
+                uses: docker/login-action@v3
+                with:
+                    username: ${{ secrets.DOCKERHUB_USERNAME }}
+                    password: ${{ secrets.DOCKERHUB_TOKEN }}
+            - 
+                name: Set up QEMU
+                uses: docker/setup-qemu-action@v3
+            -
+                name: Set up Docker Buildx
+                uses: docker/setup-buildx-action@v3
+            -
+                name: Build and push Collector Service
+                uses: docker/build-push-action@v6
+                with:
+                    context: .
+                    file: ./services/collector-service/Dockerfile
+                    push: true
+                    tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/collector-service:latest
+            -
+                name: Build and push Persister Service
+                uses: docker/build-push-action@v6
+                with:
+                    context: .
+                    file: ./services/persister-service/Dockerfile
+                    push: true
+                    tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/persister-service:latest
+            -
+                name: Build and push Cache Service
+                uses: docker/build-push-action@v6
+                with:
+                    context: .
+                    file: ./services/cache-service/Dockerfile
+                    push: true
+                    tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/cache-service:latest
+            -
+                name: Build and push API Service
+                uses: docker/build-push-action@v6
+                with:
+                    context: .
+                    file: ./services/api-service/Dockerfile
+                    push: true
+                    tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/api-service:latest
+            -
+                name: Build and push Analytics Service
+                uses: docker/build-push-action@v6
+                with:
+                    context: .
+                    file: ./services/analytics-service/Dockerfile
+                    push: true
+                    tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/analytics-service:latest
+    deploy:
+        needs: build-and-push
+        runs-on: self-hosted
+        environment: production
+
+        steps:
+            -
+                name: Create .env
+                run: |
+                    echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" > .env
+                    echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env
+                    echo "POSTGRES_DBNAME=${{ secrets.POSTGRES_DBNAME }}" >> .env
+
+                    echo "MONGO_USER=${{ secrets.MONGO_USER }}" >> .env
+                    echo "MONGO_PASSWORD=${{ secrets.MONGO_PASSWORD }}" >> .env
+
+                    echo "REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}" >> .env
+                    
+                    echo "GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> .env
+
+                    echo "OPEN_WEATHER_API_KEY=${{ secrets.OPEN_WEATHER_API_KEY }}" >> .env
+                    echo "OPEN_WEATHER_CITY=${{ secrets.OPEN_WEATHER_CITY }}" >> .env
+            -
+                name: Deploy to server
+                run: |
+                    docker-compose pull
+                    docker-compose up -d
+
+            
