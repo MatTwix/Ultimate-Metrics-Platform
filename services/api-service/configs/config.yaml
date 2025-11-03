@@ -18,13 +18,5 @@ postgres:
     conn_max_lifetime: 30m
     conn_max_idle_time: 10m
 
-broker:
-  type: "kafka"
-  kafka:
-    brokers:  
-      - "kafka:9092"
-    topic: "metrics"
-    group_id: "persister-group"
-
 grpc:
   port: "50052"

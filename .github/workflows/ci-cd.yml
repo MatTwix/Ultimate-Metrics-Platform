@@ -62,6 +62,15 @@ jobs:
                     push: false
                     load: true
                     tags: analytics-service:latest
+            -
+                name: Build and push Notification Service
+                uses: docker/build-push-action@v6
+                with:
+                    context: .
+                    file: ./services/notification-service/Dockerfile
+                    push: false
+                    load: true
+                    tags: notification-service:latest
     deploy:
         needs: build-and-push
         runs-on: self-hosted
@@ -84,6 +93,13 @@ jobs:
 
                     echo "OPEN_WEATHER_API_KEY=${{ secrets.OPEN_WEATHER_API_KEY }}" >> .env
                     echo "OPEN_WEATHER_CITY=${{ secrets.OPEN_WEATHER_CITY }}" >> .env
+
+                    echo "SMTP_HOST=${{ secrets.SMTP_HOST }}" >> .env
+                    echo "SMTP_PORT=${{ secrets.SMTP_PORT }}" >> .env
+                    echo "SMTP_USERNAME=${{ secrets.SMTP_USERNAME }}" >> .env
+                    echo "SMTP_PASSWORD=${{ secrets.SMTP_PASSWORD }}" >> .env
+                    echo "SMTP_FROM_EMAIL=${{ secrets.SMTP_FROM_EMAIL }}" >> .env
+                    echo "SMTP_TO_EMAIL=${{ secrets.SMTP_TO_EMAIL }}" >> .env
             -
                 name: Deploy to server
                 run: |

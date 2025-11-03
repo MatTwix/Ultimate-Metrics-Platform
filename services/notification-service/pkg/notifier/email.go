@@ -19,6 +19,7 @@ func NewEmailNotifier(host, port, from, username, password, to string) Notifier 
 		smtpHost: host,
 		smtpPort: port,
 		from:     from,
+		username: username,
 		password: password,
 		to:       to,
 	}
@@ -28,8 +29,12 @@ func (n *EmailNotifier) NotifyStarInrcease(repo string, oldStars, newStars int) 
 	subject := fmt.Sprintf("GitHub Stars Increased for %s", repo)
 	body := fmt.Sprintf("Stars: %d -> %d (+%d)", oldStars, newStars, newStars-oldStars)
 
-	msg := fmt.Sprintf("From %s\r\nTo: %s\r\nSubject: %s\r\n\r\n%s", n.from, n.to, subject, body)
+	msg := fmt.Sprintf("From: %s\r\nTo: %s\r\nSubject: %s\r\n\r\n%s", n.from, n.to, subject, body)
 	auth := smtp.PlainAuth("", n.username, n.password, n.smtpHost)
 
-	return smtp.SendMail(n.smtpHost+":"+n.smtpPort, auth, n.from, []string{n.to}, []byte(msg))
+	if err := smtp.SendMail(n.smtpHost+":"+n.smtpPort, auth, n.from, []string{n.to}, []byte(msg)); err != nil {
+		return fmt.Errorf("failed to send mail: %w", err)
+	}
+
+	return nil
 }

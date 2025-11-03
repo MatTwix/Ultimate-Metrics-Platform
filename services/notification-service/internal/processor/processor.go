@@ -2,6 +2,7 @@ package processor
 
 import (
 	"context"
+	"time"
 
 	"github.com/MatTwix/Ultimate-Metrics-Platform/services/notification-service/pkg/consumer"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/services/notification-service/pkg/logger"
@@ -15,10 +16,11 @@ type Processor struct {
 	log      logger.Logger
 }
 
-func New(consumer consumer.MessageConsumer, notifier notifier.Notifier) *Processor {
+func New(consumer consumer.MessageConsumer, notifier notifier.Notifier, log logger.Logger) *Processor {
 	return &Processor{
 		consumer: consumer,
 		notifier: notifier,
+		log:      log,
 		stars:    make(map[string]int),
 	}
 }
@@ -32,6 +34,7 @@ func (p *Processor) Start(ctx context.Context) {
 			metric, err := p.consumer.ConsumeMetric(ctx)
 			if err != nil {
 				p.log.Error("failed to consume metric", "error", err)
+				time.Sleep(time.Second)
 				continue
 			}
 
@@ -41,7 +44,12 @@ func (p *Processor) Start(ctx context.Context) {
 				oldStars, exists := p.stars[repo]
 
 				if exists && newStars > oldStars {
-					p.notifier.NotifyStarInrcease(repo, oldStars, newStars)
+					err := p.notifier.NotifyStarInrcease(repo, oldStars, newStars)
+					if err != nil {
+						p.log.Error("failed to notify", "error", err)
+						time.Sleep(time.Second)
+					}
+					p.log.Info("notification succeccfully sended", "repo", repo, "stars_incrementations", newStars-oldStars)
 				}
 
 				p.stars[repo] = newStars

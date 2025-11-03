@@ -28,7 +28,7 @@ func main() {
 
 	var log logger.Logger = logger.New(cfg.Env)
 
-	log.Info("starting collector-service", slog.String("env", cfg.Env))
+	log.Info("starting notification-service", slog.String("env", cfg.Env))
 	log.Debug("debug messages are enabled")
 
 	go config.WatchConfig(func(e fsnotify.Event) {
@@ -73,12 +73,12 @@ func main() {
 		emailConfig.To,
 	)
 
-	proc := processor.New(msgCons, emailNotifier)
+	proc := processor.New(msgCons, emailNotifier, log)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	log.Info("starting cache-service")
+	log.Info("starting notification-service")
 	proc.Start(ctx)
 
 	quit := make(chan os.Signal, 1)
