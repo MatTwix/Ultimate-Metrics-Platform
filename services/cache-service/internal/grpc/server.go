@@ -6,26 +6,40 @@ import (
 	"time"
 
 	"github.com/MatTwix/Ultimate-Metrics-Platform/services/cache-service/internal/cache"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/cache-service/internal/metrics"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/services/cache-service/proto"
 )
 
 type Server struct {
 	proto.UnimplementedCacheServiceServer
-	cache cache.Cache
+	cache   cache.Cache
+	metrics *metrics.Metrics
 }
 
-func NewServer(cache cache.Cache) *Server {
-	return &Server{cache: cache}
+func NewServer(cache cache.Cache, metrics *metrics.Metrics) *Server {
+	return &Server{
+		cache:   cache,
+		metrics: metrics,
+	}
 }
 
 func (s *Server) GetMetric(ctx context.Context, req *proto.GetMetricRequest) (*proto.GetMetricResponse, error) {
+	start := time.Now()
+	defer func() {
+		s.metrics.CacheOperationDuration.WithLabelValues("get").Observe(time.Since(start).Seconds())
+	}()
+
 	metric, err := s.cache.GetMetric(ctx, req.Source, req.Name)
 	if err != nil {
+		s.metrics.CacheRequests.WithLabelValues("get", "error").Inc()
 		return nil, fmt.Errorf("failed to get metric from cache: %w", err)
 	}
 
 	if metric == nil {
+		s.metrics.CacheRequests.WithLabelValues("get", "miss").Inc()
 		return &proto.GetMetricResponse{Metric: nil}, nil
+	} else {
+		s.metrics.CacheRequests.WithLabelValues("get", "hit").Inc()
 	}
 
 	labels := make(map[string]string)

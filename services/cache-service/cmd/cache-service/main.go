@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 	"net"
+	"net/http"
 	"os"
 	"os/signal"
 	"sync"
@@ -12,6 +13,7 @@ import (
 	"github.com/MatTwix/Ultimate-Metrics-Platform/services/cache-service/internal/cache"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/services/cache-service/internal/config"
 	grpcInternal "github.com/MatTwix/Ultimate-Metrics-Platform/services/cache-service/internal/grpc"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/cache-service/internal/metrics"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/services/cache-service/internal/processor"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/services/cache-service/pkg/consumer"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/services/cache-service/pkg/kafka"
@@ -19,6 +21,8 @@ import (
 	"github.com/MatTwix/Ultimate-Metrics-Platform/services/cache-service/proto"
 	"github.com/fsnotify/fsnotify"
 	"github.com/go-redis/redis/v8"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"google.golang.org/grpc"
 )
 
@@ -57,7 +61,11 @@ func main() {
 	brokerConfig := cfg.Broker
 	redisConfig := cfg.Redis
 	grpcConfig := cfg.GRPC
+	serverConfig := cfg.Server
 	cfgMutex.RUnlock()
+
+	reg := prometheus.NewRegistry()
+	m := metrics.NewMetrics(reg)
 
 	redisClient := redis.NewClient(&redis.Options{
 		Addr:     redisConfig.Addr,
@@ -79,10 +87,10 @@ func main() {
 	}
 	defer msgCons.Close()
 
-	proc := processor.NewConsumer(msgCons, cacheImpl, log)
+	proc := processor.NewConsumer(msgCons, cacheImpl, log, m)
 
 	grpcServer := grpc.NewServer()
-	cacheServer := grpcInternal.NewServer(cacheImpl)
+	cacheServer := grpcInternal.NewServer(cacheImpl, m)
 	proto.RegisterCacheServiceServer(grpcServer, cacheServer)
 
 	lis, err := net.Listen("tcp", ":"+grpcConfig.Port)
@@ -95,6 +103,15 @@ func main() {
 		log.Info("gRPC server listening", "port", grpcConfig.Port)
 		if err := grpcServer.Serve(lis); err != nil {
 			log.Error("failed to serve gRPC", "error", err)
+			os.Exit(1)
+		}
+	}()
+
+	go func() {
+		http.Handle("/metrics", promhttp.HandlerFor(reg, promhttp.HandlerOpts{}))
+		log.Info("metrics server listening", "port", serverConfig.Port)
+		if err := http.ListenAndServe(":"+serverConfig.Port, nil); err != nil {
+			log.Error("failed to start metrics server", "error", err)
 			os.Exit(1)
 		}
 	}()

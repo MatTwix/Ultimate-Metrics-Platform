@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/MatTwix/Ultimate-Metrics-Platform/services/cache-service/internal/cache"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/cache-service/internal/metrics"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/services/cache-service/pkg/consumer"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/services/cache-service/pkg/logger"
 )
@@ -13,13 +14,15 @@ type Consumer struct {
 	messageConsumer consumer.MessageConsumer
 	cache           cache.Cache
 	log             logger.Logger
+	metrics         *metrics.Metrics
 }
 
-func NewConsumer(messageConsumer consumer.MessageConsumer, cache cache.Cache, log logger.Logger) *Consumer {
+func NewConsumer(messageConsumer consumer.MessageConsumer, cache cache.Cache, log logger.Logger, metrics *metrics.Metrics) *Consumer {
 	return &Consumer{
 		messageConsumer: messageConsumer,
 		cache:           cache,
 		log:             log,
+		metrics:         metrics,
 	}
 }
 
@@ -47,6 +50,8 @@ func (c *Consumer) Start(ctx context.Context) {
 		default:
 			metric, err := c.messageConsumer.ConsumeMetric(ctx)
 			if err != nil {
+				c.metrics.CacheRequests.WithLabelValues("consume", "error").Inc()
+
 				c.log.Error("failed to consume metric")
 				time.Sleep(time.Second)
 				continue
@@ -59,10 +64,15 @@ func (c *Consumer) Start(ctx context.Context) {
 
 			ttl := getTTl(metric.Source)
 
+			start := time.Now()
 			if err := c.cache.SetMetric(ctx, metric, ttl); err != nil {
+				c.metrics.CacheRequests.WithLabelValues("set", "error").Inc()
 				c.log.Error("failed to cache metric", "error", err)
 				continue
 			}
+
+			c.metrics.CacheRequests.WithLabelValues("set", "success").Inc()
+			c.metrics.CacheOperationDuration.WithLabelValues("set").Observe(time.Since(start).Seconds())
 
 			c.log.Info("successfully cached metric", "source", metric.Source, "name", metric.Name)
 		}

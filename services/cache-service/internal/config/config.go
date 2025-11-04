@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
@@ -10,9 +11,16 @@ import (
 
 type Config struct {
 	Env    string       `mapstructure:"env"`
+	Server ServerConfig `mapstructure:"server"`
 	Redis  RedisConfig  `mapstructure:"redis"`
 	Broker BrokerConfig `mapstructure:"broker"`
 	GRPC   GRPCConfig   `mapstructure:"grpc"`
+}
+
+type ServerConfig struct {
+	Port        string        `mapstructure:"port"`
+	Timeout     time.Duration `mapstructure:"timeout"`
+	IdleTimeout time.Duration `mapstructure:"idle_timeout"`
 }
 
 type RedisConfig struct {

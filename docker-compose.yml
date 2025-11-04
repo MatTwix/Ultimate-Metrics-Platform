@@ -74,6 +74,9 @@ services:
     restart: on-failure
     environment:
       - REDIS_ADDR=redis:6379
+    ports:
+      - "50051:50051"
+      - "8081:8081"
     depends_on:
       redis:
         condition: service_healthy
