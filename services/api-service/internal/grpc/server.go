@@ -5,22 +5,37 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/api-service/internal/metrics"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/services/api-service/pkg/reader"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/services/api-service/proto"
 )
 
 type Server struct {
 	proto.UnimplementedMetricsServiceServer
-	reader reader.MetricsReader
+	reader  reader.MetricsReader
+	metrics *metrics.Metrics
 }
 
-func NewServer(reader reader.MetricsReader) *Server {
-	return &Server{reader: reader}
+func NewServer(reader reader.MetricsReader, metrics *metrics.Metrics) *Server {
+	return &Server{
+		reader:  reader,
+		metrics: metrics,
+	}
 }
 
 func (s *Server) GetMetrics(ctx context.Context, req *proto.GetMetricsRequest) (*proto.GetMetricsResponse, error) {
+	methodName := "GetMetrics"
+	start := time.Now()
+
+	s.metrics.RequestsTotal.WithLabelValues(methodName).Inc()
+	defer func() {
+		duration := time.Since(start).Seconds()
+		s.metrics.RequestDuration.WithLabelValues(methodName).Observe(duration)
+	}()
+
 	metrics, err := s.reader.GetMetrics(ctx, req.Source, req.Name, int(req.Limit))
 	if err != nil {
+		s.metrics.RequestsFailedTotal.WithLabelValues(methodName).Inc()
 		return nil, fmt.Errorf("failed to get metrics: %w", err)
 	}
 
@@ -48,8 +63,18 @@ func (s *Server) GetMetrics(ctx context.Context, req *proto.GetMetricsRequest) (
 }
 
 func (s *Server) GetMetric(ctx context.Context, req *proto.GetMetricRequest) (*proto.GetMetricResponse, error) {
+	methodName := "GetMetric"
+	start := time.Now()
+
+	s.metrics.RequestsTotal.WithLabelValues(methodName).Inc()
+	defer func() {
+		duration := time.Since(start).Seconds()
+		s.metrics.RequestDuration.WithLabelValues(methodName).Observe(duration)
+	}()
+
 	metric, err := s.reader.GetMetric(ctx, req.Source, req.Name)
 	if err != nil {
+		s.metrics.RequestsFailedTotal.WithLabelValues(methodName).Inc()
 		return nil, fmt.Errorf("failed to get metric: %w", err)
 	}
 

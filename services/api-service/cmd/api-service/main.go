@@ -3,6 +3,7 @@ package main
 import (
 	"log/slog"
 	"net"
+	"net/http"
 	"os"
 	"os/signal"
 	"sync"
@@ -11,9 +12,12 @@ import (
 	"github.com/MatTwix/Ultimate-Metrics-Platform/services/api-service/internal/config"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/services/api-service/internal/database"
 	grpcInternal "github.com/MatTwix/Ultimate-Metrics-Platform/services/api-service/internal/grpc"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/api-service/internal/metrics"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/services/api-service/pkg/logger"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/services/api-service/proto"
 	"github.com/fsnotify/fsnotify"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"google.golang.org/grpc"
 )
 
@@ -51,7 +55,11 @@ func main() {
 	cfgMutex.RLock()
 	dbConfig := cfg.Postgres
 	grpcConfig := cfg.GRPC
+	serverConfig := cfg.Server
 	cfgMutex.RUnlock()
+
+	reg := prometheus.NewRegistry()
+	m := metrics.NewMetrics(reg)
 
 	db, err := database.New(dbConfig)
 	if err != nil {
@@ -64,7 +72,7 @@ func main() {
 	reader := database.NewPostgresMetricsReeader(db)
 
 	grpcServer := grpc.NewServer()
-	apiServer := grpcInternal.NewServer(reader)
+	apiServer := grpcInternal.NewServer(reader, m)
 	proto.RegisterMetricsServiceServer(grpcServer, apiServer)
 
 	lis, err := net.Listen("tcp", ":"+grpcConfig.Port)
@@ -77,6 +85,15 @@ func main() {
 		log.Info("gRPC server listening", "port", grpcConfig.Port)
 		if err := grpcServer.Serve(lis); err != nil {
 			log.Error("failed to serve gRPC", "error", err)
+			os.Exit(1)
+		}
+	}()
+
+	go func() {
+		http.Handle("/metrics", promhttp.HandlerFor(reg, promhttp.HandlerOpts{}))
+		log.Info("metrics server listening", "port", serverConfig.Port)
+		if err := http.ListenAndServe(":"+serverConfig.Port, nil); err != nil {
+			log.Error("failed to start metrics server", "error", err)
 			os.Exit(1)
 		}
 	}()

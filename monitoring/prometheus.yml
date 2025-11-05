@@ -11,4 +11,7 @@ scrape_configs:
   - job_name: 'analytics-service'
     static_configs: 
       - targets: ['analytics-service:9093']
+  - job_name: 'api-service'
+    static_configs: 
+      - targets: ['api-service:9094']
   
