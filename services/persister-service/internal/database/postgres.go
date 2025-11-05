@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/MatTwix/Ultimate-Metrics-Platform/services/persister-service/internal/config"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/persister-service/internal/metrics"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/services/persister-service/internal/repository"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/services/persister-service/pkg/models"
 	"github.com/golang-migrate/migrate/v4"
@@ -23,12 +24,13 @@ import (
 var migrationsFS embed.FS
 
 type Storage struct {
-	db *sql.DB
+	db      *sql.DB
+	metrics *metrics.Metrics
 }
 
 var _ repository.MetricRepository = (*Storage)(nil)
 
-func New(cfg config.PostgresConfig) (*Storage, error) {
+func New(cfg config.PostgresConfig, metrics *metrics.Metrics) (*Storage, error) {
 	dsn := fmt.Sprintf(
 		"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
 		cfg.Host, cfg.Port, cfg.User, cfg.Password, cfg.DBName, cfg.SSLMode,
@@ -51,7 +53,7 @@ func New(cfg config.PostgresConfig) (*Storage, error) {
 		return nil, fmt.Errorf("failed to ping database: %w", err)
 	}
 
-	return &Storage{db: db}, nil
+	return &Storage{db: db, metrics: metrics}, nil
 }
 
 func (s *Storage) RunMigrations() error {
@@ -84,6 +86,7 @@ func (s *Storage) Close() error {
 func (s *Storage) StoreBranch(ctx context.Context, metrics []models.Metric) error {
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
+		s.metrics.DatabaseErrorsTotal.Inc()
 		return fmt.Errorf("could not begin transaction: %w", err)
 	}
 	defer tx.Rollback()
@@ -93,6 +96,7 @@ func (s *Storage) StoreBranch(ctx context.Context, metrics []models.Metric) erro
 		VALUES ($1, $2, $3, $4, $5)
 	`)
 	if err != nil {
+		s.metrics.DatabaseErrorsTotal.Inc()
 		return fmt.Errorf("could not prepare transaction: %w", err)
 	}
 	defer statement.Close()
@@ -126,12 +130,16 @@ func (s *Storage) StoreBranch(ctx context.Context, metrics []models.Metric) erro
 	}
 
 	if err := tx.Commit(); err != nil {
+		s.metrics.DatabaseErrorsTotal.Inc()
 		return fmt.Errorf("failed to commit transaction: %w", err)
 	}
 
 	if len(batchErr.Errors) > 0 {
+		s.metrics.DatabaseErrorsTotal.Inc()
 		return &batchErr
 	}
+
+	s.metrics.MetricsSavedTotal.Inc()
 
 	return nil
 }

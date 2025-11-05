@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log/slog"
+	"net/http"
 	"os"
 	"os/signal"
 	"sync"
@@ -10,12 +11,15 @@ import (
 
 	"github.com/MatTwix/Ultimate-Metrics-Platform/services/persister-service/internal/config"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/services/persister-service/internal/database"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/persister-service/internal/metrics"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/services/persister-service/internal/processor"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/services/persister-service/internal/repository"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/services/persister-service/pkg/consumer"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/services/persister-service/pkg/kafka"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/services/persister-service/pkg/logger"
 	"github.com/fsnotify/fsnotify"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func main() {
@@ -52,9 +56,13 @@ func main() {
 	cfgMutex.RLock()
 	dbConfig := cfg.Postgres
 	brokerConfig := cfg.Broker
+	serverConfig := cfg.Server
 	cfgMutex.RUnlock()
 
-	db, err := database.New(dbConfig)
+	reg := prometheus.NewRegistry()
+	m := metrics.NewMetrics(reg)
+
+	db, err := database.New(dbConfig, m)
 	if err != nil {
 		log.Error("failed to connect to database", "error", err)
 		os.Exit(1)
@@ -80,7 +88,16 @@ func main() {
 	}
 	defer msgCons.Close()
 
-	proc := processor.NewConsumer(msgCons, metricsRepo, log)
+	proc := processor.NewConsumer(msgCons, metricsRepo, log, m)
+
+	go func() {
+		http.Handle("/metrics", promhttp.HandlerFor(reg, promhttp.HandlerOpts{}))
+		log.Info("metrics server listening", "port", serverConfig.Port)
+		if err := http.ListenAndServe(":"+serverConfig.Port, nil); err != nil {
+			log.Error("failed to start metrics server", "error", err)
+			os.Exit(1)
+		}
+	}()
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()

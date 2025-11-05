@@ -14,4 +14,7 @@ scrape_configs:
   - job_name: 'api-service'
     static_configs: 
       - targets: ['api-service:9094']
+  - job_name: 'persister-service'
+    static_configs: 
+      - targets: ['persister-service:9095']
   
