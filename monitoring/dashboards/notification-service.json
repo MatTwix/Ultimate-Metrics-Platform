@@ -309,7 +309,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(rate(notificaiton_service_notification_errors_total[5m])) by (stage, notifier_type)",
+          "expr": "sum(rate(notification_service_notification_errors_total[5m])) by (stage, notifier_type)",
           "instant": false,
           "legendFormat": "{{stage}} - {{notifier_type}}",
           "range": true,
@@ -405,7 +405,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "sum(rate(notificaiton_service_notification_errors_total[5m])) / sum(rate(notification_service_notifications_consumed_total[5m])) * 100",
+          "expr": "sum(rate(notification_service_notification_errors_total[5m])) / sum(rate(notification_service_notifications_consumed_total[5m])) * 100",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,

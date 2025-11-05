@@ -24,7 +24,7 @@ func NewMetrics(reg prometheus.Registerer) *Metrics {
 			Help: "Total number of notifications successfully sent",
 		}, []string{"notifier_type"}),
 		NotificationsErrorsTotal: factory.NewCounterVec(prometheus.CounterOpts{
-			Name: "notificaiton_service_notification_errors_total",
+			Name: "notification_service_notification_errors_total",
 			Help: "Total number of errors during notification processing or sending",
 		}, []string{"stage", "notifier_type"}),
 		NotificationsSendDuration: factory.NewHistogramVec(prometheus.HistogramOpts{

@@ -42,6 +42,8 @@ func (p *Processor) Start(ctx context.Context) {
 				continue
 			}
 
+			p.metrics.NotificationsConsumedTotal.Inc()
+
 			if metric.Source == "GitHub" && metric.Name == "stargazers_count" {
 				repo := "golang/go"
 				newStars := int(metric.Value)
