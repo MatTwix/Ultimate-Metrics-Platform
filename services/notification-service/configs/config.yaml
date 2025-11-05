@@ -1,5 +1,10 @@
 env: "dev"
 
+server:
+  port: "9096"
+  timeout: 4s
+  idle_timeout: 30s
+
 redis:
   addr: "localhost:6379"
   password: ""

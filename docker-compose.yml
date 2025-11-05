@@ -158,6 +158,8 @@ services:
       - EMAIL_PASSWORD=${SMTP_PASSWORD}
       - EMAIL_FROM=${SMTP_FROM_EMAIL}
       - EMAIL_TO=${SMTP_TO_EMAIL}
+    ports:
+      - "9096:9096"
     depends_on:
       kafka:
         condition: service_healthy

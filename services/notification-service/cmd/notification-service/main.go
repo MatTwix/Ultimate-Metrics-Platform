@@ -3,18 +3,22 @@ package main
 import (
 	"context"
 	"log/slog"
+	"net/http"
 	"os"
 	"os/signal"
 	"sync"
 	"syscall"
 
 	"github.com/MatTwix/Ultimate-Metrics-Platform/services/notification-service/internal/config"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/notification-service/internal/metrics"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/services/notification-service/internal/processor"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/services/notification-service/pkg/consumer"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/services/notification-service/pkg/kafka"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/services/notification-service/pkg/logger"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/services/notification-service/pkg/notifier"
 	"github.com/fsnotify/fsnotify"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func main() {
@@ -51,7 +55,11 @@ func main() {
 	cfgMutex.RLock()
 	emailConfig := cfg.Email
 	brokerConfig := cfg.Broker
+	serverConfig := cfg.Server
 	cfgMutex.RUnlock()
+
+	reg := prometheus.NewRegistry()
+	m := metrics.NewMetrics(reg)
 
 	var msgCons consumer.MessageConsumer
 
@@ -71,9 +79,19 @@ func main() {
 		emailConfig.Username,
 		emailConfig.Password,
 		emailConfig.To,
+		m,
 	)
 
-	proc := processor.New(msgCons, emailNotifier, log)
+	proc := processor.New(msgCons, emailNotifier, log, m)
+
+	go func() {
+		http.Handle("/metrics", promhttp.HandlerFor(reg, promhttp.HandlerOpts{}))
+		log.Info("metrics server listening", "port", serverConfig.Port)
+		if err := http.ListenAndServe(":"+serverConfig.Port, nil); err != nil {
+			log.Error("failed to start metrics server", "error", err)
+			os.Exit(1)
+		}
+	}()
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()

@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/MatTwix/Ultimate-Metrics-Platform/services/notification-service/internal/metrics"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/services/notification-service/pkg/consumer"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/services/notification-service/pkg/logger"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/services/notification-service/pkg/notifier"
@@ -14,14 +15,16 @@ type Processor struct {
 	notifier notifier.Notifier
 	stars    map[string]int
 	log      logger.Logger
+	metrics  *metrics.Metrics
 }
 
-func New(consumer consumer.MessageConsumer, notifier notifier.Notifier, log logger.Logger) *Processor {
+func New(consumer consumer.MessageConsumer, notifier notifier.Notifier, log logger.Logger, metrics *metrics.Metrics) *Processor {
 	return &Processor{
 		consumer: consumer,
 		notifier: notifier,
 		log:      log,
 		stars:    make(map[string]int),
+		metrics:  metrics,
 	}
 }
 
@@ -33,6 +36,7 @@ func (p *Processor) Start(ctx context.Context) {
 		default:
 			metric, err := p.consumer.ConsumeMetric(ctx)
 			if err != nil {
+				p.metrics.NotificationsErrorsTotal.WithLabelValues("consume", "none").Inc()
 				p.log.Error("failed to consume metric", "error", err)
 				time.Sleep(time.Second)
 				continue
