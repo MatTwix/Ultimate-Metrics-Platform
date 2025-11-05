@@ -76,7 +76,7 @@ services:
       - REDIS_ADDR=redis:6379
     ports:
       - "50051:50051"
-      - "8081:8081"
+      - "9091:9091"
     depends_on:
       redis:
         condition: service_healthy
@@ -132,6 +132,8 @@ services:
       - MONGO_DBNAME=${MONGO_DBNAME}
       - MONGO_USER=${MONGO_USER}
       - MONGO_PASSWORD=${MONGO_PASSWORD}
+    ports:
+      - "9093:9093"
     depends_on:
       mongodb:
         condition: service_healthy

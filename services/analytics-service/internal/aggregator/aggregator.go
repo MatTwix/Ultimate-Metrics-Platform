@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/MatTwix/Ultimate-Metrics-Platform/servises/analytics-service/internal/metrics"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/servises/analytics-service/pkg/analitycs"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/servises/analytics-service/pkg/grpc"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/servises/analytics-service/pkg/models"
@@ -13,10 +14,15 @@ import (
 type Aggregator struct {
 	apiClient *grpc.MetricsClient
 	writer    analitycs.AnalyticsWriter
+	metrics   *metrics.Metrics
 }
 
-func NewAggregator(apiClient *grpc.MetricsClient, writer analitycs.AnalyticsWriter) *Aggregator {
-	return &Aggregator{apiClient: apiClient, writer: writer}
+func NewAggregator(apiClient *grpc.MetricsClient, writer analitycs.AnalyticsWriter, metrics *metrics.Metrics) *Aggregator {
+	return &Aggregator{
+		apiClient: apiClient,
+		writer:    writer,
+		metrics:   metrics,
+	}
 }
 
 func (a *Aggregator) AggregateHourly(ctx context.Context, source, name string) error {
@@ -53,8 +59,11 @@ func (a *Aggregator) AggregateHourly(ctx context.Context, source, name string) e
 	}
 
 	if err := a.writer.SaveAggregated(ctx, agg); err != nil {
+		a.metrics.DatabaseErrors.Inc()
 		return fmt.Errorf("failed to save aggregated metric: %w", err)
 	}
+
+	a.metrics.MetricsSaved.Inc()
 
 	return nil
 }

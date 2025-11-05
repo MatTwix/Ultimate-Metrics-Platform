@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
@@ -13,6 +14,13 @@ type Config struct {
 	Mongo   MongoConfig  `mapstructure:"mongo"`
 	Urls    UrlsConfig   `mapstructure:"urls"`
 	Metrics []MetricInfo `mapstructure:"metrics"`
+	Server  ServerConfig `mapstructure:"server"`
+}
+
+type ServerConfig struct {
+	Port        string        `mapstructure:"port"`
+	Timeout     time.Duration `mapstructure:"timeout"`
+	IdleTimeout time.Duration `mapstructure:"idle_timeout"`
 }
 
 type MongoConfig struct {

@@ -8,6 +8,7 @@ import (
 
 	"github.com/MatTwix/Ultimate-Metrics-Platform/servises/analytics-service/internal/aggregator"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/servises/analytics-service/internal/config"
+	"github.com/MatTwix/Ultimate-Metrics-Platform/servises/analytics-service/internal/metrics"
 	"github.com/MatTwix/Ultimate-Metrics-Platform/servises/analytics-service/pkg/logger"
 )
 
@@ -15,6 +16,7 @@ type Processor struct {
 	aggregator *aggregator.Aggregator
 	log        logger.Logger
 	interval   time.Duration
+	metrics    *metrics.Metrics
 }
 
 type aggregationResult struct {
@@ -23,11 +25,12 @@ type aggregationResult struct {
 	err    error
 }
 
-func NewProcessor(aggregator *aggregator.Aggregator, log logger.Logger, interval time.Duration) *Processor {
+func NewProcessor(aggregator *aggregator.Aggregator, log logger.Logger, interval time.Duration, metrics *metrics.Metrics) *Processor {
 	return &Processor{
 		aggregator: aggregator,
 		log:        log,
 		interval:   interval,
+		metrics:    metrics,
 	}
 }
 
@@ -49,6 +52,19 @@ func (p *Processor) Start(ctx context.Context, metrics []config.MetricInfo) {
 }
 
 func (p *Processor) aggregateAll(ctx context.Context, metrics []config.MetricInfo) {
+	start := time.Now()
+
+	defer func() {
+		duration := time.Since(start).Seconds()
+		p.metrics.BatchProcessingDuration.Observe(duration)
+	}()
+
+	batchTaskCount := 0
+	for _, m := range metrics {
+		batchTaskCount += len(m.Names)
+	}
+	p.metrics.BatchSize.Observe(float64(batchTaskCount))
+
 	resultCh := make(chan aggregationResult, len(metrics)*10)
 
 	var wg sync.WaitGroup

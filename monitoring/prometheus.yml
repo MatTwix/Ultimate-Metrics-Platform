@@ -7,5 +7,8 @@ scrape_configs:
       - targets: ['collector-service:8080']
   - job_name: 'cache-service'
     static_configs: 
-      - targets: ['cache-service:8081']
+      - targets: ['cache-service:9091']  
+  - job_name: 'analytics-service'
+    static_configs: 
+      - targets: ['analytics-service:9093']
   
