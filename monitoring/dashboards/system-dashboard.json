@@ -268,7 +268,7 @@
       },
       "gridPos": {
         "h": 12,
-        "w": 7,
+        "w": 5,
         "x": 17,
         "y": 0
       },
@@ -314,7 +314,61 @@
           "legendFormat": "Saved to DB",
           "range": true,
           "refId": "B"
+        }
+      ],
+      "title": "Data Pipeline Throughput",
+      "type": "bargauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
         },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 2,
+        "x": 22,
+        "y": 0
+      },
+      "id": 9,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "10.1.5",
+      "targets": [
         {
           "datasource": {
             "type": "prometheus",
@@ -322,15 +376,14 @@
           },
           "editorMode": "code",
           "expr": "round(sum(increase(notification_service_notifications_sent_total[$__range])))",
-          "hide": false,
           "instant": false,
-          "legendFormat": "Notifications Sent",
+          "legendFormat": "__auto",
           "range": true,
-          "refId": "C"
+          "refId": "A"
         }
       ],
-      "title": "Data Pipeline Throughput",
-      "type": "bargauge"
+      "title": "Notifications Sent ",
+      "type": "stat"
     },
     {
       "datasource": {
@@ -637,13 +690,13 @@
     "list": []
   },
   "time": {
-    "from": "now-3h",
+    "from": "now-24h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "System Dashboard",
   "uid": "c1745b4a-3f4d-4a70-88cd-4f5854053274",
-  "version": 1,
+  "version": 3,
   "weekStart": ""
 }
