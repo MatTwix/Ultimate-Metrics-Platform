@@ -1,7 +1,5 @@
 # Ultimate Metrics Platform
 
----
-
 ![Go](https://img.shields.io/badge/Go-00ADD8?style=for-the-badge&logo=go&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 ![Kafka](https://img.shields.io/badge/Apache%20Kafka-231F20?style=for-the-badge&logo=apachekafka&logoColor=white)
@@ -12,8 +10,6 @@
 ![Status](https://img.shields.io/badge/Status-In%20Development-blue?style=for-the-badge)
 ![Observability](https://img.shields.io/badge/Observability-Enabled-brightgreen?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)
-
----
 
 Комплексная микросервисная платформа для сбора метрик и обеспечения наблюдаемости, построенная на Go и включающая полный стек мониторинга с Prometheus, Grafana и Loki.
 
